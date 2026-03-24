@@ -118,7 +118,8 @@ export function calculatePortfolio(
   txns: Transaction[],
   currentPrices: Map<string, number>,
   startDate?: string,
-  endDate?: string
+  endDate?: string,
+  isPremium?: boolean
 ): PortfolioResult {
   if (txns.length === 0) {
     return {
@@ -207,6 +208,8 @@ export function calculatePortfolio(
   }
   for (const a of allocation) {
     a.weight = totalAlloc > 0 ? (a.value / totalAlloc) * 100 : 0;
+    const atKey = a.assetType as keyof typeof ASSET_TYPES;
+    (a as any).color = ASSET_TYPES[atKey]?.color || '#6b7280';
   }
 
   // TWR calculation with monthly periods
@@ -236,6 +239,35 @@ export function calculatePortfolio(
   xirrFlows.push({ date: new Date(effectiveEnd), amount: currentValue });
   const xirrResult = xirr(xirrFlows);
 
+  // Premium analytics
+  let sharpeRatio: number | undefined;
+  let maxDrawdown: number | undefined;
+  if (isPremium && timeline.length > 2) {
+    // Max Drawdown
+    let peak = 0; let maxDD = 0;
+    for (const pt of timeline) {
+      if (pt.value > peak) peak = pt.value;
+      const dd = peak > 0 ? (peak - pt.value) / peak : 0;
+      if (dd > maxDD) maxDD = dd;
+    }
+    maxDrawdown = maxDD * 100;
+
+    // Sharpe Ratio (simplified, risk-free = 15% for TRY)
+    const returns: number[] = [];
+    for (let i = 1; i < timeline.length; i++) {
+      if (timeline[i - 1].value > 0) {
+        returns.push((timeline[i].value - timeline[i - 1].value) / timeline[i - 1].value);
+      }
+    }
+    if (returns.length > 1) {
+      const avgReturn = returns.reduce((s, r) => s + r, 0) / returns.length;
+      const variance = returns.reduce((s, r) => s + (r - avgReturn) ** 2, 0) / returns.length;
+      const stdDev = Math.sqrt(variance);
+      const riskFreeMonthly = 0.15 / 12;
+      sharpeRatio = stdDev > 0 ? ((avgReturn - riskFreeMonthly) / stdDev) * Math.sqrt(12) : 0;
+    }
+  }
+
   return {
     totalInvested: netInvested,
     currentValue,
@@ -243,6 +275,8 @@ export function calculatePortfolio(
     percentReturn,
     twr: twr * 100,
     xirr: xirrResult !== null ? xirrResult * 100 : null,
+    sharpeRatio,
+    maxDrawdown,
     timeline,
     allocation,
     transactions: sorted.filter(t => t.date >= effectiveStart && t.date <= effectiveEnd),
@@ -359,6 +393,6 @@ export function generateCommentary(result: PortfolioResult): ThinkerCommentary[]
         break;
     }
 
-    return { thinkerId: persona.id, name: persona.name, era: persona.era, commentary, sentiment };
+    return { thinkerId: persona.id, name: persona.name, era: persona.era, avatar: persona.avatar, commentary, sentiment };
   });
 }

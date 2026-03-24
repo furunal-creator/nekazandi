@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/components/ThemeProvider";
-import { ArrowLeft, Sun, Moon } from "lucide-react";
+import { ArrowLeft, Sun, Moon, Shield } from "lucide-react";
 
 export default function Auth() {
   const [, navigate] = useLocation();
@@ -29,125 +29,93 @@ export default function Auth() {
         await register({ email, password, name: name || undefined, kvkkConsent });
       }
       navigate("/dashboard");
-    } catch (err) {
-      // Error is shown from the hook
-    }
+    } catch {}
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-chart-3/5 blur-3xl" />
+      </div>
+
       {/* Header */}
-      <header className="border-b border-border/50 h-14 flex items-center px-4 sm:px-6">
+      <header className="relative z-10 border-b border-border/50 h-14 flex items-center px-4 sm:px-6 glass">
         <div className="max-w-6xl mx-auto w-full flex items-center justify-between">
           <button onClick={() => navigate("/")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="back-home">
             <ArrowLeft className="w-4 h-4" />
             Ana Sayfa
           </button>
-          <button onClick={toggleTheme} className="p-2 rounded-md hover:bg-muted transition-colors">
+          <button onClick={toggleTheme} className="p-2 rounded-lg hover:bg-muted transition-colors">
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
         </div>
       </header>
 
       {/* Auth Form */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <Card className="w-full max-w-sm border-border/50">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold text-center">
+      <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-16">
+        <Card className="w-full max-w-sm border-border/50 shadow-lg">
+          <CardHeader className="pb-4 text-center">
+            <div className="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-3">
+              <Shield className="w-6 h-6 text-white" />
+            </div>
+            <CardTitle className="text-lg font-bold">
               {mode === "login" ? "Giriş Yap" : "Kayıt Ol"}
             </CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              {mode === "login" ? "Portföy hesaplarınıza erişin" : "Ücretsiz hesap oluşturun"}
+            </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === "register" && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="name" className="text-xs">Ad Soyad</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    placeholder="İsteğe bağlı"
-                    className="h-9 text-sm"
-                    data-testid="input-name"
-                  />
+                  <Label htmlFor="name" className="text-xs font-medium">Ad Soyad</Label>
+                  <Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder="İsteğe bağlı" className="h-10" data-testid="input-name" />
                 </div>
               )}
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-xs">E-posta</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="ornek@email.com"
-                  className="h-9 text-sm"
-                  data-testid="input-email"
-                />
+                <Label htmlFor="email" className="text-xs font-medium">E-posta</Label>
+                <Input id="email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="ornek@email.com" className="h-10" data-testid="input-email" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-xs">Şifre</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  minLength={6}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder={mode === "register" ? "En az 6 karakter" : ""}
-                  className="h-9 text-sm"
-                  data-testid="input-password"
-                />
+                <Label htmlFor="password" className="text-xs font-medium">Şifre</Label>
+                <Input id="password" type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} placeholder={mode === "register" ? "En az 6 karakter" : "••••••"} className="h-10" data-testid="input-password" />
               </div>
 
               {mode === "register" && (
-                <div className="flex items-start gap-2">
-                  <Checkbox
-                    id="kvkk"
-                    checked={kvkkConsent}
-                    onCheckedChange={(checked) => setKvkkConsent(!!checked)}
-                    data-testid="checkbox-kvkk"
-                  />
-                  <label htmlFor="kvkk" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
-                    <button type="button" onClick={() => setShowKvkk(!showKvkk)} className="text-primary hover:underline">
-                      KVKK Aydınlatma Metni
-                    </button>
-                    'ni okudum ve kabul ediyorum.
-                  </label>
-                </div>
-              )}
-
-              {showKvkk && (
-                <div className="p-3 rounded-md bg-muted/50 border border-border/50 text-xs text-muted-foreground max-h-40 overflow-y-auto leading-relaxed">
-                  <p className="font-medium text-foreground mb-2">KVKK Aydınlatma Metni</p>
-                  <p>nekazandi.com olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında verilerinizin korunmasına önem veriyoruz.</p>
-                  <p className="mt-2">Toplanan Veriler: E-posta adresi, portföy verileri.</p>
-                  <p className="mt-1">İşleme Amacı: Portföy performans hesaplamaları.</p>
-                  <p className="mt-1">Haklarınız: Verilerinize erişim, düzeltme, silme hakları bulunmaktadır.</p>
-                </div>
+                <>
+                  <div className="flex items-start gap-2">
+                    <Checkbox id="kvkk" checked={kvkkConsent} onCheckedChange={(c) => setKvkkConsent(!!c)} data-testid="checkbox-kvkk" />
+                    <label htmlFor="kvkk" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+                      <button type="button" onClick={() => setShowKvkk(!showKvkk)} className="text-primary hover:underline font-medium">KVKK Aydınlatma Metni</button>'ni okudum ve kabul ediyorum.
+                    </label>
+                  </div>
+                  {showKvkk && (
+                    <div className="p-3 rounded-lg bg-muted/50 border border-border/50 text-xs text-muted-foreground max-h-40 overflow-y-auto">
+                      <p className="font-medium text-foreground mb-2">KVKK Aydınlatma Metni</p>
+                      <p>nekazandi.com olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında verilerinizin korunmasına önem veriyoruz.</p>
+                      <p className="mt-1.5">Toplanan Veriler: E-posta, portföy verileri. İşleme Amacı: Portföy performans hesaplamaları. Haklarınız: Erişim, düzeltme, silme.</p>
+                    </div>
+                  )}
+                </>
               )}
 
               {(loginError || registerError) && (
-                <p className="text-xs text-destructive">{loginError || registerError}</p>
+                <div className="p-2.5 rounded-lg bg-destructive/10 border border-destructive/20">
+                  <p className="text-xs text-destructive">{loginError || registerError}</p>
+                </div>
               )}
 
-              <Button
-                type="submit"
-                className="w-full h-9 text-sm"
-                disabled={isLoginPending || isRegisterPending}
-                data-testid="submit-auth"
-              >
-                {(isLoginPending || isRegisterPending) ? "..." : mode === "login" ? "Giriş Yap" : "Kayıt Ol"}
+              <Button type="submit" className="w-full h-10 gradient-primary border-0 text-white font-medium" disabled={isLoginPending || isRegisterPending} data-testid="submit-auth">
+                {(isLoginPending || isRegisterPending) ? "Yükleniyor..." : mode === "login" ? "Giriş Yap" : "Kayıt Ol"}
               </Button>
             </form>
 
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => setMode(mode === "login" ? "register" : "login")}
-                className="text-xs text-muted-foreground hover:text-primary transition-colors"
-                data-testid="toggle-auth-mode"
-              >
-                {mode === "login" ? "Hesabınız yok mu? Kayıt olun" : "Zaten hesabınız var mı? Giriş yapın"}
+            <div className="mt-5 text-center">
+              <button onClick={() => setMode(mode === "login" ? "register" : "login")} className="text-xs text-muted-foreground hover:text-primary transition-colors" data-testid="toggle-auth-mode">
+                {mode === "login" ? "Hesabınız yok mu? Ücretsiz kayıt olun" : "Zaten hesabınız var mı? Giriş yapın"}
               </button>
             </div>
           </CardContent>
