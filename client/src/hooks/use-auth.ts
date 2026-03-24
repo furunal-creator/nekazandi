@@ -5,7 +5,8 @@ interface User {
   id: number;
   email: string;
   name: string | null;
-  isPremium: boolean;
+  role: "user" | "premium" | "admin";
+  isPremium?: boolean;
 }
 
 export function useAuth() {
@@ -43,7 +44,7 @@ export function useAuth() {
     user: data?.user ?? null,
     isLoading,
     isAuthenticated: !!data?.user,
-    isPremium: !!data?.user?.isPremium,
+    isPremium: data?.user?.role === "premium" || data?.user?.role === "admin",
     login: loginMutation.mutateAsync,
     register: registerMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,

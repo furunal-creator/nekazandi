@@ -7,6 +7,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/not-found";
 import { PerplexityAttribution } from "./components/PerplexityAttribution";
 
@@ -18,6 +19,7 @@ function AppRouter() {
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/dashboard/:portfolioId" component={Dashboard} />
         <Route path="/auth" component={Auth} />
+        <Route path="/admin" component={Admin} />
         <Route component={NotFound} />
       </Switch>
     </Router>
