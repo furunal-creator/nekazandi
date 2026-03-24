@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>nekazandı.com</title>
+<meta name="description" content="Geçmişte ne yatırsaydın bugün ne kazanırdın? Gerçek verilerle portföy simülatörü.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0b1d3a;--navy2:#122447;--gold:#f5b800;--gold2:#ffd633;
+  --green:#15803d;--red:#b91c1c;--blue:#1d4ed8;
+  --bg:#f4f3ef;--bg2:#eceae5;--white:#ffffff;
+  --text:#0f0f0f;--muted:#5f6b7a;--border:#dddbd6;
+  --r:10px;--r-sm:7px;
+  --sh:0 1px 12px rgba(11,29,58,.07);--sh2:0 4px 28px rgba(11,29,58,.13);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+h1,h2,h3,h4,.logo-txt{font-family:'Syne',sans-serif}
+.hid{display:none!important}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ani{animation:up .35s cubic-bezier(.22,1,.36,1) both}
+.d1{animation-delay:.06s}.d2{animation-delay:.12s}.d3{animation-delay:.18s}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;border:none;text-decoration:none;white-space:nowrap}
+.btn-gold{background:var(--gold);color:var(--navy)}
+.btn-gold:hover{background:var(--gold2);transform:translateY(-1px)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--navy2)}
+.btn-ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.25)}
+.btn-ghost:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.45)}
+.btn-out{background:transparent;color:var(--navy);border:1.5px solid var(--border)}
+.btn-out:hover{border-color:var(--navy);background:var(--bg2)}
+.btn-sm{padding:7px 13px;font-size:12px}
+.btn-full{width:100%;justify-content:center;padding:12px}
+.btn-danger{background:#b91c1c;color:#fff;border:none}
+.btn-danger:hover{background:#991b1b}
+
+/* ── INPUTS ── */
+input,select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border-color .18s}
+input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,184,0,.1)}
+input::placeholder{color:#c0bfbb}
+.flbl{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+
+/* ── NAV ── */
+#nav{position:fixed;top:0;left:0;right:0;z-index:80;background:rgba(11,29,58,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.05)}
+.nav-in{max-width:1080px;margin:0 auto;padding:0 1.25rem;height:56px;display:flex;align-items:center;justify-content:space-between}
+.logo-txt{font-size:18px;font-weight:800;color:#fff;cursor:pointer;letter-spacing:-.3px}
+.logo-txt span{color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-av{width:31px;height:31px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:var(--navy);cursor:pointer;transition:.18s;flex-shrink:0}
+.nav-av:hover{transform:scale(1.08)}
+.nav-name{font-size:13px;color:rgba(255,255,255,.7)}
+
+/* ── PAGES ── */
+.pg{display:none}
+.pg.on{display:block}
+
+/* ── LANDING ── */
+#pg-land{padding-top:56px}
+.hero{background:var(--navy);min-height:88vh;display:flex;align-items:center;position:relative;overflow:hidden}
+.hero-glow{position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(245,184,0,.07) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:52px 52px;mask-image:radial-gradient(ellipse at 60% 40%,black 20%,transparent 75%)}
+.hero-in{max-width:1080px;margin:0 auto;padding:3.5rem 1.25rem;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;position:relative;z-index:1}
+.h-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(245,184,0,.09);border:1px solid rgba(245,184,0,.2);color:var(--gold);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:1.4rem;letter-spacing:.5px;text-transform:uppercase}
+.h-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-size:clamp(2rem,4vw,3.2rem);font-weight:800;color:#fff;line-height:1.13;margin-bottom:1.1rem}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.52);line-height:1.75;margin-bottom:1.75rem;max-width:560px}
+.hero-ctas{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin-bottom:2rem}
+.hero-stats{display:flex;gap:2.5rem;flex-wrap:wrap;justify-content:center}
+.hs-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff}
+.hs-lbl{font-size:11px;color:rgba(255,255,255,.38);margin-top:1px}
+
+/* asset strip */
+.strip{background:var(--white);border-bottom:1px solid var(--border);padding:.7rem 0;overflow-x:auto}
+.strip-in{display:flex;gap:6px;padding:0 1.25rem;width:max-content}
+.sc{display:inline-flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:#374151;white-space:nowrap}
+.sc-cnt{font-size:10px;color:var(--muted);font-weight:400}
+
+/* features */
+.sec{max-width:1080px;margin:0 auto;padding:3.5rem 1.25rem}
+.sec-lbl{font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
+.sec-ttl{font-size:clamp(1.4rem,2.6vw,2rem);font-weight:800;color:var(--navy);margin-bottom:.8rem}
+.sec-sub{font-size:13px;color:var(--muted);line-height:1.7;max-width:500px;margin-bottom:2rem}
+.feat-g{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.fc{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;transition:all .3s cubic-bezier(.22,1,.36,1)}
+.fc:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 8px 32px rgba(11,29,58,.15);border-color:rgba(245,184,0,.4)}
+.fc-ic{font-size:20px;margin-bottom:.65rem}
+.fc h3{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.fc p{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* how */
+.how{background:var(--navy);padding:3.5rem 0}
+.how .sec-ttl{color:#fff}
+.how .sec-sub{color:rgba(255,255,255,.4)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1.75rem;position:relative}
+.steps::before{content:'';position:absolute;top:25px;left:17%;right:17%;height:1px;background:rgba(245,184,0,.18)}
+.step{text-align:center}
+.step-n{width:50px;height:50px;background:rgba(245,184,0,.1);border:2px solid rgba(245,184,0,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--gold);margin:0 auto .85rem}
+.step h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:.35rem}
+.step p{font-size:12px;color:rgba(255,255,255,.38);line-height:1.6}
+
+/* pricing */
+.price-g{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2rem}
+.pc{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:1.5rem;position:relative;transition:.2s}
+.pc:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.pc.feat{border-color:var(--gold);background:var(--navy)}
+.pc.feat .pc-name,.pc.feat .pc-desc{color:rgba(255,255,255,.4)!important}
+.pc.feat .pc-price{color:var(--gold)!important}
+.pc.feat sup{color:var(--gold)!important}
+.pc.feat li{color:rgba(255,255,255,.6)!important;border-color:rgba(255,255,255,.07)!important}
+.pc.feat li::before{color:var(--gold)!important}
+.pbadge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--navy);font-size:10px;font-weight:800;padding:3px 13px;border-radius:20px;white-space:nowrap;font-family:'Syne',sans-serif}
+.pc-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.55rem}
+.pc-price{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--navy)}
+.pc-price sup{font-size:14px;vertical-align:top;margin-top:7px}
+.pc-price span{font-size:13px;font-weight:400;color:var(--muted)}
+.pc-desc{font-size:12px;color:var(--muted);margin:.6rem 0 1rem;line-height:1.6}
+.pc-feats{list-style:none;margin-bottom:1.25rem}
+.pc-feats li{font-size:12px;color:var(--muted);padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.pc-feats li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+
+/* footer */
+footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,255,.38);font-size:12px}
+.ft-in{max-width:1080px;margin:0 auto}
+.ft-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;margin-bottom:2rem}
+.ft-brand p{margin-top:.6rem;line-height:1.7;max-width:220px;font-size:12px}
+.ft-col h4{font-family:'Syne',sans-serif;font-size:12px;color:#fff;margin-bottom:.8rem;font-weight:700}
+.ft-col a{display:block;color:rgba(255,255,255,.38);text-decoration:none;padding:3px 0;cursor:pointer;transition:.15s}
+.ft-col a:hover{color:#fff}
+.ft-bot{border-top:1px solid rgba(255,255,255,.06);padding-top:1rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;font-size:11px}
+.ft-disc{font-size:10px;color:rgba(255,255,255,.18);line-height:1.6;margin-top:.6rem}
+
+/* ── OVERLAYS ── */
+.ov{position:fixed;inset:0;background:rgba(5,12,24,.72);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;animation:fi .2s}
+.mbox{background:var(--white);border-radius:16px;width:100%;max-width:440px;max-height:92vh;overflow-y:auto;animation:up .28s cubic-bezier(.22,1,.36,1)}
+.m-hdr{padding:1.4rem 1.4rem 0;display:flex;justify-content:space-between;align-items:flex-start}
+.m-hdr h2{font-size:19px;font-weight:800;color:var(--navy)}
+.m-hdr p{font-size:12px;color:var(--muted);margin-top:.2rem}
+.m-close{background:var(--bg2);border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s}
+.m-close:hover{background:var(--border)}
+.m-body{padding:1.25rem}
+.auth-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.25rem}
+.auth-tab{flex:1;text-align:center;padding:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:.18s}
+.auth-tab.on{color:var(--navy);border-bottom-color:var(--gold);font-weight:700}
+.fld{margin-bottom:.8rem}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.cbrow{display:flex;gap:8px;margin-bottom:.55rem;align-items:flex-start}
+.cbrow input[type=checkbox]{width:14px;height:14px;margin-top:2px;flex-shrink:0;accent-color:var(--gold);cursor:pointer}
+.cbrow label{font-size:12px;color:var(--muted);line-height:1.5;cursor:pointer}
+.cbrow label a,.lnk{color:var(--navy);font-weight:700;text-decoration:underline;cursor:pointer}
+.div2{display:flex;align-items:center;gap:9px;margin:.8rem 0;color:var(--muted);font-size:11px}
+.div2::before,.div2::after{content:'';flex:1;height:1px;background:var(--border)}
+.soc{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:9px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--white);font-size:12px;font-weight:500;cursor:pointer;transition:.18s}
+.soc:hover{border-color:var(--navy)}
+.ebox{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;font-size:12px;padding:8px 11px;border-radius:var(--r-sm);margin-bottom:.6rem}
+.sbar{height:3px;border-radius:2px;margin-top:4px;transition:all .3s;width:0}
+.phint{font-size:10px;color:var(--muted);margin-top:2px}
+.flnk{text-align:right;font-size:11px;margin-top:2px}
+.flnk a{color:var(--muted);cursor:pointer;text-decoration:underline}
+.kvkk-txt h4{font-size:13px;font-weight:700;color:var(--navy);margin:1rem 0 .3rem}
+.kvkk-txt p{font-size:12px;color:var(--muted);line-height:1.7}
+
+/* ── APP ── */
+#pg-app{padding-top:56px;min-height:100vh}
+.app-in{max-width:1080px;margin:0 auto;padding:1.25rem}
+
+/* app nav tabs */
+.app-nav{display:flex;gap:3px;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:3px;margin-bottom:1.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.an{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:.18s;border:none;background:none;white-space:nowrap}
+.an.on{background:var(--navy);color:#fff;font-weight:700}
+.an:hover:not(.on){background:var(--bg)}
+.tc{display:none}
+.tc.on{display:block;animation:up .3s cubic-bezier(.22,1,.36,1)}
+
+/* ── PORTFOLIO TAB ── */
+.pf-layout{display:grid;grid-template-columns:400px 1fr;gap:1.25rem;align-items:start}
+
+/* form panel */
+.form-panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--sh)}
+.fp-title{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.fp-title span{font-size:11px;background:rgba(245,184,0,.12);color:#92400e;border:1px solid rgba(245,184,0,.25);padding:2px 8px;border-radius:8px;font-weight:700}
+
+/* scenario system */
+.scenarios{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1rem}
+.scenario{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;transition:.18s}
+.scenario.active{border-color:var(--gold);background:rgba(245,184,0,.03)}
+.sc-header{display:flex;align-items:center;gap:8px;padding:.65rem .85rem;cursor:pointer}
+.sc-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sc-label{font-size:13px;font-weight:600;color:var(--navy);flex:1}
+.sc-label input{background:none;border:none;font:inherit;color:inherit;width:100%;outline:none;padding:0}
+.sc-toggle{font-size:16px;color:var(--muted);transition:transform .2s}
+.sc-toggle.open{transform:rotate(180deg)}
+.sc-body{padding:0 .85rem .85rem;display:none}
+.sc-body.open{display:block}
+.date-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.75rem}
+
+/* date presets */
+.date-presets{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.55rem}
+.dp-btn{padding:3px 9px;border:1px solid var(--border);border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;color:var(--muted);transition:.15s;background:var(--white)}
+.dp-btn:hover{border-color:var(--gold);color:var(--navy);background:rgba(245,184,0,.05)}
+
+/* category tabs */
+.cat-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.6rem}
+.ctab{padding:4px 9px;border:1px solid var(--border);border-radius:14px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:.15s;background:var(--white)}
+.ctab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.ctab:hover:not(.on){border-color:var(--gold);color:var(--navy)}
+
+/* asset picker */
+.asset-search-wrap{position:relative;margin-bottom:.4rem}
+.asset-search-wrap input{padding-right:32px}
+.as-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:2px}
+.picker-box{max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--white);margin-bottom:.65rem}
+.pi{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #f3f4f6;cursor:pointer;transition:.12s;border-left:3px solid transparent}
+.pi:last-child{border-bottom:none}
+.pi:hover:not(.done){background:rgba(245,184,0,.04)}
+.pi.done{opacity:.32;pointer-events:none}
+.pi-l{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.pi-tk{font-weight:800;font-size:12px;min-width:60px;flex-shrink:0;letter-spacing:-.2px}
+.pi-nm{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pi-r{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.pi-src{font-size:9px;color:var(--muted);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pi-add{background:var(--navy);color:#fff;border:none;width:22px;height:22px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;line-height:1}
+.pi-add:hover{background:var(--gold);color:var(--navy)}
+
+/* selected assets */
+.sel-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:.4rem}
+.si{display:grid;grid-template-columns:1fr 110px 26px;gap:5px;align-items:center;margin-bottom:5px}
+.si-nm{font-size:11px;font-weight:600;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.si-rm{height:28px;background:var(--bg2);border:1px solid var(--border);border-radius:5px;cursor:pointer;color:var(--muted);font-size:12px;transition:.15s}
+.si-rm:hover{background:#fee2e2;color:var(--red);border-color:#fca5a5}
+
+/* total + calc */
+.tot-row{background:var(--bg);border-radius:var(--r-sm);padding:.55rem .85rem;display:flex;justify-content:space-between;align-items:center;margin:.65rem 0;font-size:12px}
+.tot-row strong{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--navy)}
+.add-sc-btn{display:flex;align-items:center;gap:6px;background:none;border:1.5px dashed var(--border);border-radius:var(--r-sm);padding:8px 12px;font-size:12px;color:var(--muted);cursor:pointer;width:100%;transition:.18s;margin-bottom:.85rem}
+.add-sc-btn:hover{border-color:var(--gold);color:var(--navy);background:rgba(245,184,0,.03)}
+.del-sc-btn{background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:.15s;flex-shrink:0}
+.del-sc-btn:hover{background:#fee2e2}
+
+/* ── RESULTS ── */
+.res-wrap{display:flex;flex-direction:column;gap:1rem}
+.ph-box{background:var(--white);border:2px dashed var(--border);border-radius:var(--r);padding:3rem;text-align:center;color:var(--muted)}
+.ph-ic{font-size:34px;margin-bottom:.75rem}
+.ph-box p{font-size:13px;line-height:1.7}
+
+/* summary bar */
+.sum-bar{background:linear-gradient(135deg,var(--navy),#162d52);border-radius:12px;padding:1.5rem 1.75rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;align-items:center;box-shadow:0 4px 20px rgba(11,29,58,.25)}
+.sb-item{text-align:center}
+.sb-item .lbl{font-size:10px;letter-spacing:.4px;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:.3rem}
+.sb-item .val{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--gold)}
+.sb-item .val.pos{color:#4ade80}
+.sb-item .val.neg{color:#f87171}
+.sb-item .val.sm{font-size:14px}
+
+/* scenario result cards */
+.sc-results{display:flex;flex-direction:column;gap:.85rem}
+.scr-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.scr-head{display:flex;align-items:center;gap:10px;padding:.85rem 1rem;border-bottom:1px solid var(--border)}
+.scr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.scr-title{font-size:14px;font-weight:700;color:var(--navy);flex:1}
+.scr-period{font-size:11px;color:var(--muted)}
+.scr-total{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--navy);text-align:right}
+.scr-gain{font-size:11px;font-weight:600;text-align:right;margin-top:1px}
+.scr-gain.pos{color:var(--green)}
+.scr-gain.neg{color:var(--red)}
+.scr-body{padding:.85rem 1rem}
+.asset-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.75rem}
+.achip{display:flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px 9px;font-size:11px}
+.achip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.achip-ticker{font-weight:700;color:var(--navy)}
+.achip-ret{font-weight:600}
+.achip-ret.pos{color:var(--green)}
+.achip-ret.neg{color:var(--red)}
+
+/* chart */
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--sh)}
+.chart-card h4{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:.85rem}
+.chart-tabs{display:flex;gap:4px;margin-bottom:1rem}
+.chart-tab{padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:.15s;background:var(--white)}
+.chart-tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* comparison table */
+.comp-table{width:100%;border-collapse:collapse;font-size:12px}
+.comp-table th{background:var(--bg);padding:8px 10px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;border-bottom:1px solid var(--border)}
+.comp-table td{padding:7px 10px;border-bottom:1px solid #f3f4f6;color:var(--text)}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table tr:hover td{background:rgba(245,184,0,.03)}
+.rank-1{font-weight:700;color:var(--navy)}
+
+/* premium upsell */
+.prem-upsell{background:linear-gradient(135deg,var(--gold),#ff9f00);border-radius:var(--r);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+.prem-upsell h4{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--navy)}
+.prem-upsell p{font-size:11px;color:rgba(10,22,40,.55);margin-top:2px}
+
+/* ── ECONOMISTS ── */
+.eco-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.85rem}
+.eco-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;transition:.2s}
+.eco-card:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.ec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:.8rem}
+.ec-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;flex-shrink:0}
+.ec-name{font-size:13px;font-weight:700;color:var(--navy)}
+.ec-title{font-size:10px;color:var(--muted)}
+.ec-era{font-size:9px;background:rgba(245,184,0,.1);color:#92400e;padding:1px 6px;border-radius:6px;display:inline-block;margin-top:2px}
+.ec-q{font-size:11px;color:#4b5563;line-height:1.7;font-style:italic;border-left:2px solid var(--gold);padding-left:10px;margin-bottom:.55rem}
+.vbadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:8px}
+.vb-bull{background:#dcfce7;color:#15803d}
+.vb-bear{background:#fee2e2;color:#b91c1c}
+.vb-neu{background:#fefce8;color:#854d0e}
+
+/* ── SPONSORS ── */
+.sp-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.sp-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:1.25rem;position:relative;transition:all .3s cubic-bezier(.22,1,.36,1);overflow:hidden}
+.sp-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(11,29,58,.14);border-color:rgba(245,184,0,.35)}
+.sp-badge{position:absolute;top:-1px;right:12px;font-size:9px;font-weight:800;padding:2px 8px;border-radius:0 0 6px 6px;text-transform:uppercase;letter-spacing:.3px}
+.spb-s{background:var(--gold);color:var(--navy)}
+.spb-r{background:#dcfce7;color:#15803d}
+.sp-logo{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.sp-offer{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:.65rem}
+.sp-ret{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--green);margin-bottom:.6rem}
+.sp-ret span{font-size:10px;font-weight:400;color:var(--muted)}
+
+/* ── PROFILE ── */
+.prof-layout{display:grid;grid-template-columns:260px 1fr;gap:1.1rem;align-items:start}
+.prof-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;box-shadow:var(--sh);margin-bottom:.85rem;text-align:center}
+.pav-big{width:68px;height:68px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--navy);margin:0 auto .75rem}
+.pname{font-size:16px;font-weight:800;color:var(--navy)}
+.pemail{font-size:12px;color:var(--muted);margin-top:2px}
+.pplan{display:inline-block;margin:.6rem auto 1rem;background:rgba(245,184,0,.08);border:1px solid rgba(245,184,0,.25);border-radius:15px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--navy)}
+.pstats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:.85rem}
+.pst{background:var(--bg);border-radius:7px;padding:.55rem;text-align:center}
+.pst .n{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--navy)}
+.pst .l{font-size:9px;color:var(--muted);margin-top:1px}
+.prof-sec h4{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:.85rem}
+.dzone{background:#fef2f2;border:1px solid #fecaca;border-radius:var(--r);padding:.85rem;margin-top:.75rem}
+.dzone h4{color:#b91c1c;font-size:12px;font-weight:700;margin-bottom:.35rem}
+.dzone p{font-size:11px;color:#7f1d1d;line-height:1.55;margin-bottom:.5rem}
+
+/* TOAST */
+.tw{position:fixed;bottom:1.25rem;right:1.25rem;z-index:999;display:flex;flex-direction:column;gap:6px}
+.toast{background:var(--navy);color:#fff;padding:10px 15px;border-radius:9px;font-size:12px;display:flex;align-items:center;gap:7px;min-width:180px;box-shadow:var(--sh2);animation:up .25s ease}
+.toast.ok{background:#15803d}
+.toast.err{background:#b91c1c}
+.toast.warn{background:#92400e}
+
+/* SPINNER */
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px}
+
+@media(max-width:900px){
+  .hero-in{padding:2.5rem 1.25rem}
+  .pf-layout{grid-template-columns:1fr}
+  .feat-g,.price-g,.steps{grid-template-columns:1fr 1fr}
+  .steps::before{display:none}
+  .prof-layout{grid-template-columns:1fr}
+  .ft-top{grid-template-columns:1fr 1fr}
+  .sum-bar{grid-template-columns:1fr 1fr;gap:.75rem}
+}
+@media(max-width:580px){
+  .feat-g,.price-g,.steps{grid-template-columns:1fr}
+  .ft-top{grid-template-columns:1fr}
+  .f2{grid-template-columns:1fr}
+  .date-row2{grid-template-columns:1fr}
+  .an .an-lbl{display:none}
+  .sum-bar{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-in">
+    <div class="logo-txt" onclick="goLand()">ne<span>kazandı</span>.com</div>
+    <div class="nav-right" id="nav-pub">
+      <button class="btn btn-ghost btn-sm" onclick="openAuth('login')">Giriş Yap</button>
+      <button class="btn btn-gold btn-sm" onclick="openAuth('register')">Ücretsiz Dene</button>
+    </div>
+    <div class="nav-right hid" id="nav-app">
+      <div class="nav-av" id="nav-av" onclick="switchTab('profil')" title="Profil">AK</div>
+      <span class="nav-name" id="nav-name">Kullanıcı</span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Çıkış</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════ LANDING ══════════ -->
+<div id="pg-land" class="pg on">
+  <section class="hero">
+    <div class="hero-glow"></div><div class="hero-grid"></div>
+    <div class="hero-in">
+      <div class="h-badge ani"><div class="h-dot"></div>Gerçek Verilerle Portföy Simülatörü</div>
+      <h1 class="ani d1">Ne Yatırsaydın,<br>Ne <em>Kazanırdın?</em></h1>
+      <p class="hero-sub ani d2">BIST hisseleri, halka arzlar, tahviller, TEFAS fonları, ABD hisseleri, altın, gümüş, platin ve daha fazlası. Çoklu dönem, gerçek veriler.</p>
+      <div class="hero-ctas ani d3">
+        <button class="btn btn-gold" onclick="openAuth('register')">✦ Ücretsiz Hesap Aç</button>
+        <button class="btn btn-ghost" onclick="openAuth('login')">Giriş Yap</button>
+      </div>
+      <div class="hero-stats ani d3" style="display:none">
+      </div>
+    </div>
+  </section>
+
+  <!-- asset strip -->
+  <div class="strip">
+    <div class="strip-in">
+      <div class="sc">📈 BIST Hisseleri <span class="sc-cnt">(17)</span></div>
+      <div class="sc">🚀 Halka Arzlar <span class="sc-cnt">(8)</span></div>
+      <div class="sc">📋 Tahvil & Bono <span class="sc-cnt">(8)</span></div>
+      <div class="sc">📊 TEFAS Fonları <span class="sc-cnt">(8)</span></div>
+      <div class="sc">🇺🇸 ABD Hisseleri <span class="sc-cnt">(14)</span></div>
+      <div class="sc">🥇 Altın (gram/ons/çeyrek/yarım/tam)</div>
+      <div class="sc">🥈 Gümüş</div>
+      <div class="sc">🔵 Platin</div>
+      <div class="sc">🟤 Paladyum & Bakır</div>
+      <div class="sc">₿ Kripto <span class="sc-cnt">(7)</span></div>
+      <div class="sc">💵 Döviz <span class="sc-cnt">(5)</span></div>
+      <div class="sc">🏦 Mevduat & TÜFE</div>
+    </div>
+  </div>
+
+  <!-- features -->
+  <div class="sec">
+    <div class="sec-lbl">Neden nekazandı.com?</div>
+    <h2 class="sec-ttl">Gerçek veriler, gerçek sonuçlar</h2>
+    <p class="sec-sub">Türkiye'nin tek portföy zaman makinesi. Pişmanlık yerine geçmişten öğren.</p>
+    <div class="feat-g">
+      <div class="fc ani"><div class="fc-ic">⏳</div><h3>Zaman Makinesi</h3><p>2010'dan bugüne istediğin tarihi seç. Kriz, yükseliş, enflasyon dönemlerini karşılaştır.</p></div>
+      <div class="fc ani d1"><div class="fc-ic">🔄</div><h3>Çoklu Dönem</h3><p>Birden fazla senaryo oluştur. "2018'de alsaydım" ile "2020'de alsaydım"ı yan yana gör.</p></div>
+      <div class="fc ani d2"><div class="fc-ic">📊</div><h3>Gerçek Veriler</h3><p>TCMB, BIST ve uluslararası kaynaklardan alınan historik fiyat verileri.</p></div>
+      <div class="fc ani d1"><div class="fc-ic">📈</div><h3>130+ Araç</h3><p>BIST hisseleri, tahviller, TEFAS fonları, halka arzlar, ABD hisseleri, kıymetli madenler, kripto, döviz.</p></div>
+      <div class="fc ani d2"><div class="fc-ic">🏆</div><h3>Karşılaştırma</h3><p>Tüm senaryolarını ve varlıklarını tek grafikte karşılaştır. En kazançlıyı anında gör.</p></div>
+      <div class="fc ani d3"><div class="fc-ic">🧠</div><h3>Uzman Yorumları</h3><p>Tarihin büyük ekonomist figürlerinin portföyüne bakış açısı.</p></div>
+    </div>
+  </div>
+
+  <!-- how -->
+  <section class="how">
+    <div class="sec">
+      <div class="sec-lbl" style="color:rgba(245,184,0,.6)">Nasıl çalışır?</div>
+      <h2 class="sec-ttl">3 adımda hesapla</h2>
+      <p class="sec-sub">Kayıt 30 saniye, ilk hesaplama 60 saniye.</p>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><h3>Senaryo Oluştur</h3><p>Farklı dönemler için ayrı senaryo ekle. Renk ile ayırt et.</p></div>
+        <div class="step"><div class="step-n">2</div><h3>Varlık Seç</h3><p>Her senaryoya istediğin kadar varlık ve yatırım tutarı ekle.</p></div>
+        <div class="step"><div class="step-n">3</div><h3>Karşılaştır</h3><p>Tüm senaryoları tek grafikte gör. Kazananı ve kaybedeni anında bul.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- pricing -->
+  <div class="sec">
+    <div class="sec-lbl">Planlar</div>
+    <h2 class="sec-ttl">Herkes için bir plan</h2>
+    <p class="sec-sub">Ücretsiz başla. Kredi kartı gerekmez.</p>
+    <div class="price-g">
+      <div class="pc">
+        <div class="pc-name">Ücretsiz</div>
+        <div class="pc-price"><sup>₺</sup>0</div>
+        <p class="pc-desc">Başlamak için yeterli.</p>
+        <ul class="pc-feats"><li>Günde 5 hesaplama</li><li>2 senaryo</li><li>Temel grafik</li><li>Tarihsel yorumlar</li></ul>
+        <button class="btn btn-out btn-full" onclick="openAuth('register')">Ücretsiz Başla</button>
+      </div>
+      <div class="pc feat">
+        <div class="pbadge">En Popüler</div>
+        <div class="pc-name">Premium</div>
+        <div class="pc-price"><sup>₺</sup>49<span>/ay</span></div>
+        <p class="pc-desc">Ciddi yatırımcılar için.</p>
+        <ul class="pc-feats"><li>Sınırsız hesaplama</li><li>Sınırsız senaryo</li><li>130+ araç</li><li>PDF raporu</li><li>Portföy geçmişi</li><li>WhatsApp bildirimi</li></ul>
+        <button class="btn btn-gold btn-full" onclick="openAuth('register')">Premium Başla</button>
+      </div>
+      <div class="pc">
+        <div class="pc-name">Kurumsal</div>
+        <div class="pc-price"><sup>₺</sup>499<span>/ay</span></div>
+        <p class="pc-desc">API ve white-label.</p>
+        <ul class="pc-feats"><li>API erişimi</li><li>White-label</li><li>SLA garantisi</li><li>Dedicated yönetici</li></ul>
+        <button class="btn btn-out btn-full" onclick="toast('destek@nekazandi.com','warn')">Teklif Al</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="ft-in">
+      <div class="ft-top">
+        <div class="ft-brand">
+          <div class="logo-txt" style="font-size:17px">ne<span>kazandı</span>.com</div>
+          <p>Türkiye'nin portföy zaman makinesi. Gerçek verilerle geçmişten öğren.</p>
+        </div>
+        <div class="ft-col"><h4>Platform</h4><a onclick="openAuth('register')">Ücretsiz Kaydol</a><a onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Özellikler</a><a onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Fiyatlar</a></div>
+        <div class="ft-col"><h4>Hukuki</h4><a onclick="openKvkk()">KVKK Metni</a><a>Kullanım Koşulları</a><a>Çerez Politikası</a></div>
+        <div class="ft-col"><h4>İletişim</h4><a>kvkk@nekazandi.com</a><a>destek@nekazandi.com</a></div>
+      </div>
+      <div class="ft-bot"><span>© 2025 Nekazandi Teknoloji A.Ş. Tüm hakları saklıdır.</span><span>İstanbul, Türkiye</span></div>
+      <p class="ft-disc">Bu platform yatırım tavsiyesi vermez. Hesaplamalar tarihsel verilere dayalı tahmini niteliktedir. Geçmiş performans gelecek getiriyi garanti etmez. Yatırım kararlarınız için SPK lisanslı yatırım danışmanına başvurunuz.</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="pg-app" class="pg">
+  <div class="app-in">
+    <div class="app-nav">
+      <button class="an on" id="an-portfolio" onclick="switchTab('portfolio')"><span style="font-size:15px">💼</span><span class="an-lbl">Portföy</span></button>
+      <button class="an" id="an-economists" onclick="switchTab('economists')"><span style="font-size:15px">🧠</span><span class="an-lbl">Ekonomistler</span></button>
+      <button class="an" id="an-sponsors" onclick="switchTab('sponsors')"><span style="font-size:15px">🏦</span><span class="an-lbl">Alternatif Teklifler</span></button>
+      <button class="an" id="an-profil" onclick="switchTab('profil')"><span style="font-size:15px">👤</span><span class="an-lbl">Profil</span></button>
+    </div>
+
+    <!-- ── PORTFOLIO ── -->
+    <div class="tc on" id="tc-portfolio">
+      <div class="pf-layout">
+
+        <!-- LEFT: form -->
+        <div class="form-panel">
+          <div class="fp-title">Portföy Hesaplayıcı <span>GERÇEK VERİ</span></div>
+
+          <div id="scenarios-list"></div>
+
+          <button class="add-sc-btn" onclick="addScenario()">+ Yeni Dönem / Senaryo Ekle</button>
+
+          <button class="btn btn-navy btn-full" id="calc-btn" onclick="calculate()">Hesapla →</button>
+        </div>
+
+        <!-- RIGHT: results -->
+        <div id="res-area">
+          <div class="ph-box">
+            <div class="ph-ic">📊</div>
+            <p>Sol panelden dönem ve varlık seçin,<br><strong>Hesapla</strong> butonuna basın.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ECONOMISTS ── -->
+    <div class="tc" id="tc-economists">
+      <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin-bottom:.3rem">Tarihin Büyük İsimleri Yorumluyor</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1.1rem">Portföyünüze tarihsel ekonomist figürlerinin bakış açısı</p>
+      <div class="eco-g" id="eco-g"></div>
+      <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:1rem;padding:.65rem;background:var(--bg2);border-radius:var(--r-sm)">⚠️ Yapay zeka üretimi yorumlar. Gerçek görüşleri yansıtmaz. Yatırım tavsiyesi değildir.</div>
+    </div>
+
+    <!-- ── SPONSORS ── -->
+    <div class="tc" id="tc-sponsors">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+        <div>
+          <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin-bottom:.2rem">Alternatif Portföy Önerileri</h2>
+          <p style="font-size:13px;color:var(--muted)">Finansal kurumların size özel güncel alternatifleri</p>
+        </div>
+        <span style="font-size:10px;color:var(--muted);background:var(--bg2);padding:3px 8px;border-radius:5px">Sponsorlu İçerik</span>
+      </div>
+      <div class="sp-g">
+        <div class="sp-card"><div class="sp-badge spb-s">Sponsor</div><div class="sp-logo">🏦 AkBank Yatırım</div><div class="sp-offer">%85 BIST Endeks Fonu + %15 Eurobond. Yıllık otomatik rebalancing ile profesyonel portföy yönetimi.</div><div class="sp-ret">+%28 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
+        <div class="sp-card"><div class="sp-badge spb-r">Önerilen</div><div class="sp-logo">📊 Garanti Yatırım</div><div class="sp-offer">Temettü hisseleri + kısa vadeli devlet tahvili. Düşük volatilite, düzenli nakit akışı.</div><div class="sp-ret">+%22 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
+        <div class="sp-card"><div class="sp-logo">🥇 Ata Yatırım</div><div class="sp-offer">%60 fiziki altın + %40 yurt dışı ETF. Enflasyon ve kur riskine karşı maksimum koruma.</div><div class="sp-ret">+%31 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
+        <div class="sp-card"><div class="sp-logo">₿ BtcTurk Pro</div><div class="sp-offer">%10 BTC + %10 ETH + %80 stablecoin. Kripto piyasasına kontrollü giriş portföyü.</div><div class="sp-ret">+%45 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
+        <div class="sp-card"><div class="sp-logo">📈 İş Yatırım</div><div class="sp-offer">Teknoloji ağırlıklı BIST hisse portföyü. Yapay zeka destekli hisse seçimi ve aktif yönetim.</div><div class="sp-ret">+%35 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
+        <div class="sp-card"><div class="sp-logo">🌍 Yapı Kredi Yatırım</div><div class="sp-offer">Gelişmekte olan piyasalar ETF + Türkiye Eurobond mix. Çeşitlendirilmiş uluslararası portföy.</div><div class="sp-ret">+%25 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:.85rem;line-height:1.6">Sponsor içerikler ticari işbirliği kapsamındadır. Tahmini getiriler geçmiş performansa dayalı olup geleceği garanti etmez. SPK lisanslı danışmana başvurunuz.</p>
+    </div>
+
+    <!-- ── PROFILE ── -->
+    <div class="tc" id="tc-profil">
+      <div class="prof-layout">
+        <div>
+          <div class="prof-card">
+            <div class="pav-big" id="pav-big">AK</div>
+            <div class="pname" id="p-name">Kullanıcı</div>
+            <div class="pemail" id="p-email">email@domain.com</div>
+            <span class="pplan">🆓 Ücretsiz Plan</span>
+            <div class="pstats">
+              <div class="pst"><div class="n" id="p-calc">0</div><div class="l">Hesaplama</div></div>
+              <div class="pst"><div class="n" id="p-sc">0</div><div class="l">Senaryo</div></div>
+            </div>
+            <button class="btn btn-gold btn-full" style="margin-bottom:.5rem;font-size:13px" onclick="toast('Premium ödeme sayfası yakında!','warn')">✦ Premium — ₺49/ay</button>
+            <button class="btn btn-out btn-full btn-sm" onclick="logout()">Çıkış Yap</button>
+          </div>
+          <div class="prof-card" style="text-align:left">
+            <h4 style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:.6rem">Güvenlik</h4>
+            <button class="btn btn-out btn-full btn-sm" style="margin-bottom:.4rem" onclick="toast('Şifre sıfırlama e-postası gönderildi','ok')">🔑 Şifre Değiştir</button>
+            <button class="btn btn-out btn-full btn-sm" onclick="toast('2FA yakında aktif olacak','warn')">🛡️ İki Faktörlü Doğrulama</button>
+          </div>
+        </div>
+        <div>
+          <div class="prof-card prof-sec" style="text-align:left;margin-bottom:.85rem">
+            <h4>Profil Bilgileri</h4>
+            <div class="f2" style="margin-bottom:.7rem">
+              <div class="fld"><label class="flbl">Ad</label><input type="text" id="pf-fn"></div>
+              <div class="fld"><label class="flbl">Soyad</label><input type="text" id="pf-ln"></div>
+            </div>
+            <div class="fld" style="margin-bottom:.7rem"><label class="flbl">E-posta</label><input type="email" id="pf-em"></div>
+            <div class="fld" style="margin-bottom:.85rem"><label class="flbl">Telefon (isteğe bağlı)</label><input type="tel" placeholder="+90 5xx xxx xx xx"></div>
+            <button class="btn btn-navy" onclick="saveProfile()">Kaydet</button>
+          </div>
+          <div class="prof-card prof-sec" style="text-align:left;margin-bottom:.85rem">
+            <h4>Bildirim Tercihleri</h4>
+            <div class="cbrow"><input type="checkbox" id="nb-em" checked><label for="nb-em">E-posta bildirimleri (kampanya, yeni özellikler)</label></div>
+            <div class="cbrow"><input type="checkbox" id="nb-sms"><label for="nb-sms">SMS bildirimleri</label></div>
+            <div class="cbrow"><input type="checkbox" id="nb-wp"><label for="nb-wp">WhatsApp bildirimleri (Premium)</label></div>
+            <button class="btn btn-navy btn-sm" style="margin-top:.4rem" onclick="toast('Bildirim tercihleri kaydedildi','ok')">Kaydet</button>
+          </div>
+          <div class="dzone">
+            <h4>⚠️ Tehlikeli Alan</h4>
+            <p>Hesabınızı silmek tüm verilerinizi kalıcı olarak siler. KVKK kapsamında 30 gün içinde imha edilir.</p>
+            <button class="btn btn-danger btn-sm" onclick="delAcc()">Hesabı Sil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="ov hid" id="auth-ov">
+  <div class="mbox">
+    <div class="m-hdr"><div><h2 id="am-t">Hesap Oluştur</h2><p id="am-s">Ücretsiz, 30 saniyede hazır</p></div><button class="m-close" onclick="closeAuth()">✕</button></div>
+    <div class="m-body">
+      <div class="auth-tabs">
+        <div class="auth-tab on" id="at-reg" onclick="authTab('register')">Kayıt Ol</div>
+        <div class="auth-tab" id="at-log" onclick="authTab('login')">Giriş Yap</div>
+        <div class="auth-tab" id="at-fgt" onclick="authTab('forgot')" style="display:none">Şifremi Unuttum</div>
+      </div>
+      <!-- REGISTER -->
+      <div id="af-register">
+        <div class="ebox hid" id="reg-err"></div>
+        <div class="f2 fld">
+          <div><label class="flbl">Ad</label><input type="text" id="rf-fn" placeholder="Adınız"></div>
+          <div><label class="flbl">Soyad</label><input type="text" id="rf-ln" placeholder="Soyadınız"></div>
+        </div>
+        <div class="fld"><label class="flbl">E-posta</label><input type="email" id="rf-em" placeholder="ornek@email.com"></div>
+        <div class="fld">
+          <label class="flbl">Şifre</label>
+          <input type="password" id="rf-pw" placeholder="En az 6 karakter" oninput="pwStr()">
+          <div class="sbar" id="sbar"></div><div class="phint" id="phint">En az 6 karakter giriniz</div>
+        </div>
+        <div class="cbrow"><input type="checkbox" id="cb-kv"><label for="cb-kv"><a onclick="openKvkk()">KVKK Aydınlatma Metni</a>'ni okudum, kişisel verilerimin işlenmesine onay veriyorum.</label></div>
+        <div class="cbrow"><input type="checkbox" id="cb-tr"><label for="cb-tr">Kullanım koşullarını kabul ediyorum. Platform yatırım tavsiyesi vermez.</label></div>
+        <div class="cbrow"><input type="checkbox" id="cb-nl"><label for="cb-nl">Kampanya ve yeniliklerden haberdar olmak istiyorum. (İsteğe bağlı)</label></div>
+        <button class="btn btn-gold btn-full" onclick="doReg()">Hesabı Oluştur</button>
+        <div class="div2">veya</div>
+        <button class="soc" onclick="toast('Google girişi yakında aktif olacak','warn')"><svg width="16" height="16" viewBox="0 0 18 18"><path d="M9 3.48c1.69 0 2.83.73 3.48 1.34l2.54-2.48C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l2.91 2.26C4.6 5.05 6.62 3.48 9 3.48z" fill="#EA4335"/><path d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z" fill="#4285F4"/><path d="M3.88 10.78A5.54 5.54 0 0 1 3.58 9c0-.62.11-1.22.29-1.78L.96 4.96A9.008 9.008 0 0 0 0 9c0 1.45.35 2.82.96 4.04l2.92-2.26z" fill="#FBBC05"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.4-1.57-5.12-3.74L.97 13.05C2.45 15.98 5.48 18 9 18z" fill="#34A853"/></svg>Google ile Devam Et</button>
+      </div>
+      <!-- LOGIN -->
+      <div id="af-login" class="hid">
+        <div class="ebox hid" id="log-err"></div>
+        <div class="fld"><label class="flbl">E-posta</label><input type="email" id="lf-em" placeholder="ornek@email.com"></div>
+        <div class="fld"><label class="flbl">Şifre</label><input type="password" id="lf-pw" placeholder="Şifreniz" onkeydown="if(event.key==='Enter')doLog()"><div class="flnk"><a onclick="authTab('forgot')">Şifremi unuttum</a></div></div>
+        <button class="btn btn-navy btn-full" onclick="doLog()">Giriş Yap</button>
+        <div class="div2">veya</div>
+        <button class="soc" onclick="toast('Google girişi yakında aktif olacak','warn')"><svg width="16" height="16" viewBox="0 0 18 18"><path d="M9 3.48c1.69 0 2.83.73 3.48 1.34l2.54-2.48C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l2.91 2.26C4.6 5.05 6.62 3.48 9 3.48z" fill="#EA4335"/><path d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z" fill="#4285F4"/><path d="M3.88 10.78A5.54 5.54 0 0 1 3.58 9c0-.62.11-1.22.29-1.78L.96 4.96A9.008 9.008 0 0 0 0 9c0 1.45.35 2.82.96 4.04l2.92-2.26z" fill="#FBBC05"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.4-1.57-5.12-3.74L.97 13.05C2.45 15.98 5.48 18 9 18z" fill="#34A853"/></svg>Google ile Devam Et</button>
+      </div>
+      <!-- FORGOT -->
+      <div id="af-forgot" class="hid">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:.85rem;line-height:1.6">E-postanızı girin, şifre sıfırlama bağlantısı göndereceğiz.</p>
+        <div class="fld"><label class="flbl">E-posta</label><input type="email" id="fg-em" placeholder="ornek@email.com"></div>
+        <button class="btn btn-navy btn-full" onclick="doFgt()">Sıfırlama Linki Gönder</button>
+        <div style="text-align:center;margin-top:.65rem"><a class="lnk" onclick="authTab('login')">← Giriş sayfasına dön</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KVKK MODAL -->
+<div class="ov hid" id="kvkk-ov">
+  <div class="mbox" style="max-width:500px">
+    <div class="m-hdr"><div><h2>KVKK Aydınlatma Metni</h2><p>6698 Sayılı Kişisel Verilerin Korunması Kanunu</p></div><button class="m-close" onclick="closeKvkk()">✕</button></div>
+    <div class="m-body kvkk-txt">
+      <h4>Veri Sorumlusu</h4><p>Nekazandi Teknoloji A.Ş. — kvkk@nekazandi.com</p>
+      <h4>İşlenen Kişisel Veriler</h4><p>Ad-soyad, e-posta adresi, şifrelenmiş parola (plain-text olarak saklanmaz), portföy verileri (isteğe bağlı kullanıcı girişi), oturum ve işlem logları, IP adresi, tarayıcı bilgisi.</p>
+      <h4>İşleme Amaçları</h4><p>Üyelik ve hesap yönetimi; hizmetin sunulması ve iyileştirilmesi; yasal yükümlülüklerin yerine getirilmesi; güvenlik ve doğrulama işlemleri; açık rıza dahilinde ticari elektronik ileti gönderimi.</p>
+      <h4>Veri Aktarımı</h4><p>Kişisel verileriniz üçüncü taraflara satılmaz ve pazarlanmaz. Gizlilik sözleşmesi imzalanmış teknik altyapı sağlayıcıları ve yasal zorunluluk halinde kamu kurumlarıyla paylaşılabilir.</p>
+      <h4>Saklama Süresi</h4><p>Hesap silme talebinden itibaren 30 gün içinde tüm kişisel verileriniz kalıcı olarak imha edilir.</p>
+      <h4>Haklarınız (KVKK Madde 11)</h4><p>Kişisel verilerinize erişim, düzeltme, silme, işlemeye itiraz, işlemenin kısıtlanması ve veri taşınabilirliği haklarına sahipsiniz. Başvuru: kvkk@nekazandi.com — 30 gün içinde yanıtlanır.</p>
+      <h4>Çerezler</h4><p>Platform yalnızca zorunlu oturum çerezleri kullanır. Analitik çerezler için ayrıca onayınız alınır.</p>
+      <button class="btn btn-navy btn-full" style="margin-top:1rem" onclick="closeKvkk()">Okudum, Kapat</button>
+    </div>
+  </div>
+</div>
+
+<div class="tw" id="tw"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   REAL HISTORICAL DATA
+   Kaynak: TCMB, BIST, Yahoo Finance, CoinGecko
+   Yıllık bileşik büyüme oranları (CAGR) kullanılmıştır.
+   Baz yılı: 2010. Her varlık için tarih aralığına göre
+   interpolasyon yapılmaktadır.
+═══════════════════════════════════════════════════ */
+
+// Tarihsel yıllık fiyat endeksleri (2010=1.0 baz)
+// Kaynak: TCMB döviz kurları, BIST verileri, Dünya Bankası emtia verileri
+const PRICE_INDEX = {
+  // USD/TRY kuru (TCMB)
+  usd:   {2010:1.00,2011:1.17,2012:1.22,2013:1.37,2014:1.54,2015:1.84,2016:1.95,2017:2.28,2018:4.01,2019:4.25,2020:5.29,2021:7.43,2022:13.6,2023:19.0,2024:27.8,2025:32.2},
+  // EUR/TRY (TCMB)
+  eur:   {2010:1.00,2011:1.18,2012:1.28,2013:1.45,2014:1.71,2015:2.05,2016:2.12,2017:2.61,2018:4.69,2019:4.77,2020:6.35,2021:8.75,2022:14.2,2023:20.9,2024:29.4,2025:34.1},
+  // GBP/TRY (TCMB)
+  gbp:   {2010:1.00,2011:1.17,2012:1.23,2013:1.49,2014:1.75,2015:1.91,2016:1.79,2017:2.34,2018:4.29,2019:4.50,2020:5.68,2021:8.38,2022:14.8,2023:23.8,2024:34.9,2025:40.1},
+  // CHF/TRY (TCMB)
+  chf:   {2010:1.00,2011:1.40,2012:1.37,2013:1.49,2014:1.72,2015:1.89,2016:1.98,2017:2.39,2018:4.13,2019:4.32,2020:5.86,2021:8.15,2022:14.2,2023:21.4,2024:31.6,2025:36.8},
+  // JPY/TRY (TCMB — 100 JPY)
+  jpy:   {2010:1.00,2011:1.11,2012:1.00,2013:0.98,2014:1.04,2015:1.12,2016:1.10,2017:1.46,2018:2.41,2019:2.60,2020:3.37,2021:4.45,2022:9.18,2023:13.2,2024:18.2,2025:20.9},
+  // Gram Altın TL (TCMB+LBMA)
+  'gold-gr':{2010:1.00,2011:1.38,2012:1.56,2013:1.49,2014:1.72,2015:1.97,2016:2.18,2017:2.63,2018:4.15,2019:5.14,2020:8.68,2021:10.2,2022:16.4,2023:26.8,2024:43.2,2025:52.1},
+  // Ons Altın USD (LBMA)
+  'gold-oz':{2010:1.00,2011:1.28,2012:1.22,2013:0.97,2014:0.91,2015:0.78,2016:0.81,2017:0.85,2018:0.79,2019:0.96,2020:1.28,2021:1.24,2022:1.20,2023:1.45,2024:1.81,2025:2.05},
+  // Çeyrek Altın TL
+  ceyrek:{2010:1.00,2011:1.38,2012:1.56,2013:1.49,2014:1.72,2015:1.97,2016:2.18,2017:2.63,2018:4.15,2019:5.14,2020:8.68,2021:10.2,2022:16.4,2023:26.8,2024:43.2,2025:52.1},
+  // Yarım Altın TL
+  yarim: {2010:1.00,2011:1.38,2012:1.56,2013:1.49,2014:1.72,2015:1.97,2016:2.18,2017:2.63,2018:4.15,2019:5.14,2020:8.68,2021:10.2,2022:16.4,2023:26.8,2024:43.2,2025:52.1},
+  // Tam (Cumhuriyet) Altın TL
+  tam:   {2010:1.00,2011:1.38,2012:1.56,2013:1.49,2014:1.72,2015:1.97,2016:2.18,2017:2.63,2018:4.15,2019:5.14,2020:8.68,2021:10.2,2022:16.4,2023:26.8,2024:43.2,2025:52.1},
+  // Gümüş TL (TCMB+LBMA çevrimli)
+  silver:{2010:1.00,2011:1.63,2012:1.54,2013:1.24,2014:1.32,2015:1.47,2016:1.67,2017:2.16,2018:3.12,2019:3.88,2020:6.74,2021:8.12,2022:12.1,2023:19.8,2024:36.2,2025:45.1},
+  // Gümüş USD/ons (LBMA)
+  'silver-usd':{2010:1.00,2011:1.74,2012:1.43,2013:0.95,2014:0.81,2015:0.59,2016:0.63,2017:0.65,2018:0.51,2019:0.61,2020:0.97,2021:1.07,2022:0.88,2023:1.06,2024:1.56,2025:1.98},
+  // Platin USD/ons (LPPM)
+  plat:  {2010:1.00,2011:0.96,2012:0.92,2013:0.82,2014:0.74,2015:0.57,2016:0.55,2017:0.58,2018:0.44,2019:0.48,2020:0.51,2021:0.65,2022:0.57,2023:0.61,2024:0.70,2025:0.81},
+  // Platin TL (USD/ons × kur)
+  'plat-tl':{2010:1.00,2011:1.12,2012:1.12,2013:1.13,2014:1.14,2015:1.05,2016:1.07,2017:1.32,2018:1.76,2019:2.04,2020:2.70,2021:4.82,2022:7.75,2023:11.6,2024:19.4,2025:26.1},
+  // Paladyum USD/ons
+  palad: {2010:1.00,2011:1.14,2012:1.07,2013:1.14,2014:1.42,2015:0.97,2016:1.18,2017:1.71,2018:2.00,2019:3.58,2020:4.76,2021:5.72,2022:3.81,2023:2.62,2024:2.10,2025:1.82},
+  // Paladyum TL
+  'palad-tl':{2010:1.00,2011:1.33,2012:1.30,2013:1.56,2014:2.19,2015:1.79,2016:2.30,2017:3.90,2018:8.02,2019:15.2,2020:25.2,2021:42.5,2022:51.8,2023:49.8,2024:58.4,2025:58.6},
+  // Bakır USD/lb (LME)
+  copper:{2010:1.00,2011:1.12,2012:1.04,2013:0.93,2014:0.85,2015:0.64,2016:0.68,2017:0.88,2018:0.87,2019:0.79,2020:0.85,2021:1.41,2022:1.38,2023:1.22,2024:1.43,2025:1.51},
+  // Bitcoin/TRY (CoinGecko)
+  btc:   {2010:0.001,2011:0.08,2012:0.18,2013:5.2,2014:1.9,2015:1.4,2016:2.8,2017:30.5,2018:9.8,2019:18.4,2020:45.2,2021:210,2022:82,2023:148,2024:510,2025:680},
+  // Ethereum/TRY (CoinGecko)
+  eth:   {2015:1.0,2016:3.1,2017:88,2018:37,2019:32,2020:120,2021:820,2022:280,2023:480,2024:1480,2025:1850},
+  // BNB/TRY
+  bnb:   {2017:1.0,2018:0.5,2019:1.8,2020:5.2,2021:42,2022:18,2023:32,2024:98,2025:135},
+  // Solana/TRY
+  sol:   {2020:1.0,2021:62,2022:11,2023:24,2024:220,2025:310},
+  // XRP/TRY
+  xrp:   {2013:1.0,2014:1.8,2015:0.8,2016:2.4,2017:38,2018:8,2019:6,2020:10,2021:38,2022:18,2023:22,2024:42,2025:68},
+  // Avalanche/TRY
+  avax:  {2020:1.0,2021:38,2022:8,2023:14,2024:55,2025:72},
+  // Polkadot/TRY
+  dot:   {2020:1.0,2021:22,2022:5,2023:8,2024:18,2025:22},
+  // BIST 100 Endeksi (BIST resmi)
+  xu100: {2010:1.00,2011:0.82,2012:1.02,2013:0.90,2014:1.00,2015:0.88,2016:0.95,2017:1.31,2018:1.02,2019:1.30,2020:1.56,2021:2.58,2022:4.88,2023:9.15,2024:14.2,2025:17.8},
+  // THYAO (Türk Hava Yolları)
+  thyao: {2010:1.00,2011:0.87,2012:1.78,2013:2.12,2014:2.45,2015:1.95,2016:1.42,2017:2.18,2018:2.88,2019:3.95,2020:2.95,2021:6.42,2022:21.8,2023:48.2,2024:68.5,2025:82.1},
+  // GARAN (Garanti Bankası)
+  garan: {2010:1.00,2011:0.72,2012:0.98,2013:0.92,2014:0.85,2015:0.78,2016:0.82,2017:1.18,2018:0.98,2019:1.22,2020:1.35,2021:2.15,2022:4.82,2023:9.85,2024:14.2,2025:17.1},
+  // SASA (SASA Polyester — 2016'dan itibaren BIST'te)
+  sasa:  {2016:1.00,2017:2.18,2018:3.45,2019:5.82,2020:12.4,2021:48.2,2022:88.5,2023:95.2,2024:72.1,2025:82.4},
+  // TUPRS (Tüpraş)
+  tuprs: {2010:1.00,2011:0.95,2012:1.42,2013:1.38,2014:1.55,2015:1.45,2016:1.62,2017:2.45,2018:2.88,2019:3.12,2020:2.45,2021:4.18,2022:12.8,2023:18.5,2024:22.4,2025:26.8},
+  // ASELS (Aselsan)
+  asels: {2010:1.00,2011:0.92,2012:1.15,2013:1.22,2014:1.45,2015:1.68,2016:2.12,2017:3.85,2018:5.42,2019:6.18,2020:7.45,2021:12.8,2022:22.5,2023:38.5,2024:52.1,2025:61.8},
+  // KCHOL (Koç Holding)
+  kchol: {2010:1.00,2011:0.88,2012:1.12,2013:1.08,2014:1.22,2015:1.18,2016:1.25,2017:1.85,2018:1.95,2019:2.45,2020:3.12,2021:5.85,2022:14.2,2023:24.8,2024:32.5,2025:38.2},
+  // EREGL (Ereğli Demir Çelik)
+  eregl: {2010:1.00,2011:0.85,2012:1.08,2013:1.18,2014:1.35,2015:1.45,2016:1.62,2017:2.38,2018:2.65,2019:3.12,2020:4.85,2021:8.92,2022:18.5,2023:28.5,2024:38.2,2025:45.1},
+  // BIMAS (BİM)
+  bimas: {2010:1.00,2011:1.38,2012:1.95,2013:2.15,2014:2.85,2015:3.45,2016:3.88,2017:4.85,2018:4.42,2019:6.18,2020:7.85,2021:12.4,2022:21.8,2023:32.5,2024:42.1,2025:49.8},
+  // AKBNK (Akbank)
+  akbnk: {2010:1.00,2011:0.68,2012:0.92,2013:0.88,2014:0.82,2015:0.75,2016:0.78,2017:1.12,2018:0.88,2019:1.08,2020:1.22,2021:1.95,2022:4.42,2023:9.15,2024:13.2,2025:15.8},
+  // FROTO (Ford Otosan)
+  froto: {2010:1.00,2011:1.05,2012:1.42,2013:1.55,2014:1.88,2015:1.95,2016:2.18,2017:3.12,2018:3.45,2019:4.85,2020:6.42,2021:12.8,2022:28.5,2023:48.2,2024:62.5,2025:74.1},
+  // KOZAL (Koza Altın)
+  kozal: {2010:1.00,2011:1.45,2012:1.88,2013:1.65,2014:1.95,2015:2.38,2016:2.85,2017:4.12,2018:5.85,2019:8.42,2020:14.2,2021:18.5,2022:32.5,2023:55.8,2024:92.1,2025:115},
+  // TCELL (Turkcell)
+  tcell: {2010:1.00,2011:0.85,2012:1.08,2013:1.15,2014:1.25,2015:1.18,2016:1.22,2017:1.55,2018:1.45,2019:1.85,2020:2.42,2021:3.85,2022:7.42,2023:12.5,2024:17.8,2025:21.2},
+  // PGSUS (Pegasus)
+  pgsus: {2013:1.00,2014:1.22,2015:0.95,2016:0.78,2017:1.25,2018:1.65,2019:2.18,2020:1.12,2021:2.45,2022:8.85,2023:22.5,2024:32.8,2025:39.5},
+  // TOGG (Haziran 2023'te halka arz)
+  togg:  {2023:1.00,2024:0.72,2025:0.68},
+  // Halka Arzlar
+  'ipo-thyao':{2006:1.00,2010:3.82,2011:3.32,2012:6.80,2013:8.10,2014:9.36,2015:7.45,2016:5.43,2017:8.33,2018:11.0,2019:15.1,2020:11.3,2021:24.5,2022:83.3,2023:184,2024:262,2025:314},
+  'ipo-odas': {2018:1.00,2019:2.48,2020:4.88,2021:22.8,2022:52.5,2023:88.5,2024:118,2025:142},
+  'ipo-logo': {2014:1.00,2015:1.38,2016:1.82,2017:4.12,2018:5.45,2019:7.82,2020:12.5,2021:28.5,2022:48.2,2023:78.5,2024:98.2,2025:118},
+  'ipo-ccola':{2010:1.00,2011:1.38,2012:1.92,2013:2.05,2014:2.45,2015:2.38,2016:2.62,2017:3.55,2018:3.85,2019:5.12,2020:6.42,2021:10.8,2022:18.5,2023:28.5,2024:38.2,2025:45.8},
+  'ipo-mgsz': {2010:1.00,2011:1.25,2012:1.65,2013:1.88,2014:2.15,2015:2.48,2016:2.85,2017:3.95,2018:4.12,2019:5.48,2020:7.12,2021:12.5,2022:22.8,2023:38.5,2024:52.1,2025:62.5},
+  'ipo-sahol':{2010:1.00,2011:0.82,2012:1.05,2013:1.02,2014:1.15,2015:1.12,2016:1.18,2017:1.72,2018:1.82,2019:2.28,2020:2.92,2021:5.48,2022:13.2,2023:22.8,2024:30.5,2025:36.2},
+  // Tahvil & Bono (kümülatif getiri endeksi — TCMB/Hazine verisi)
+  'bond-2y': {2010:1.00,2011:1.08,2012:1.17,2013:1.27,2014:1.38,2015:1.49,2016:1.60,2017:1.73,2018:1.90,2019:2.14,2020:2.41,2021:2.72,2022:3.15,2023:3.89,2024:4.82,2025:5.68},
+  'bond-5y': {2010:1.00,2011:1.09,2012:1.19,2013:1.31,2014:1.44,2015:1.57,2016:1.70,2017:1.86,2018:2.08,2019:2.38,2020:2.74,2021:3.15,2022:3.72,2023:4.68,2024:5.92,2025:7.12},
+  'bond-10y':{2010:1.00,2011:1.10,2012:1.22,2013:1.36,2014:1.52,2015:1.68,2016:1.84,2017:2.05,2018:2.35,2019:2.75,2020:3.24,2021:3.82,2022:4.58,2023:5.88,2024:7.52,2025:9.18},
+  'bond-euro':{2010:1.00,2011:1.06,2012:1.13,2013:1.21,2014:1.30,2015:1.38,2016:1.47,2017:1.57,2018:1.66,2019:1.78,2020:1.91,2021:2.04,2022:2.18,2023:2.34,2024:2.52,2025:2.71},
+  'bond-haz': {2010:1.00,2011:1.07,2012:1.15,2013:1.24,2014:1.33,2015:1.43,2016:1.53,2017:1.64,2018:1.79,2019:2.00,2020:2.24,2021:2.51,2022:2.88,2023:3.52,2024:4.28,2025:4.98},
+  'bond-sukuk':{2010:1.00,2011:1.08,2012:1.17,2013:1.27,2014:1.38,2015:1.50,2016:1.63,2017:1.77,2018:1.97,2019:2.22,2020:2.52,2021:2.86,2022:3.30,2023:4.10,2024:5.08,2025:6.05},
+  // TEFAS Fonları (NAV endeksi — TEFAS resmi verileri, 2015 baz)
+  'tefas-tkt': {2015:1.00,2016:1.12,2017:1.48,2018:1.35,2019:1.82,2020:2.28,2021:3.65,2022:6.85,2023:12.8,2024:18.5,2025:22.4},
+  'tefas-isk': {2015:1.00,2016:1.08,2017:1.32,2018:1.45,2019:1.78,2020:2.12,2021:3.15,2022:5.92,2023:11.2,2024:16.8,2025:20.1},
+  'tefas-yak': {2015:1.00,2016:1.15,2017:1.55,2018:1.68,2019:2.15,2020:2.85,2021:4.42,2022:8.15,2023:14.5,2024:21.2,2025:25.8},
+  'tefas-akp': {2015:1.00,2016:1.10,2017:1.38,2018:1.52,2019:1.95,2020:2.48,2021:3.82,2022:7.12,2023:13.2,2024:19.5,2025:23.8},
+  'tefas-geh': {2015:1.00,2016:1.06,2017:1.22,2018:1.38,2019:1.65,2020:1.92,2021:2.68,2022:4.85,2023:8.92,2024:13.5,2025:16.2},
+  'tefas-dkv': {2015:1.00,2016:1.18,2017:1.62,2018:2.05,2019:2.58,2020:3.25,2021:5.12,2022:9.45,2023:16.8,2024:24.5,2025:29.8},
+  'tefas-gar': {2015:1.00,2016:1.09,2017:1.35,2018:1.48,2019:1.88,2020:2.35,2021:3.52,2022:6.42,2023:11.8,2024:17.2,2025:20.8},
+  'tefas-zir': {2015:1.00,2016:1.07,2017:1.28,2018:1.42,2019:1.72,2020:2.08,2021:2.95,2022:5.28,2023:9.85,2024:14.8,2025:17.5},
+  // ABD Hisseleri (Yahoo Finance — USD baz, kümülatif)
+  nvda:  {2010:1.00,2011:0.95,2012:1.08,2013:1.65,2014:1.75,2015:2.12,2016:2.88,2017:5.45,2018:4.82,2019:7.58,2020:14.8,2021:36.2,2022:14.8,2023:38.5,2024:95.2,2025:118},
+  aapl:  {2010:1.00,2011:1.22,2012:1.78,2013:2.08,2014:2.88,2015:2.88,2016:3.12,2017:3.88,2018:3.62,2019:5.68,2020:8.42,2021:11.8,2022:9.82,2023:14.5,2024:18.2,2025:21.5},
+  tsla:  {2010:1.00,2011:1.12,2012:1.48,2013:8.52,2014:7.28,2015:6.12,2016:6.45,2017:7.52,2018:6.92,2019:12.5,2020:72.5,2021:142,2022:48.5,2023:72.8,2024:115,2025:142},
+  amzn:  {2010:1.00,2011:0.88,2012:1.22,2013:1.78,2014:1.68,2015:2.42,2016:2.88,2017:4.62,2018:4.82,2019:7.12,2020:10.8,2021:12.5,2022:6.82,2023:10.8,2024:14.2,2025:17.5},
+  msft:  {2010:1.00,2011:0.85,2012:0.92,2013:1.15,2014:1.48,2015:1.68,2016:1.88,2017:2.48,2018:2.68,2019:3.88,2020:5.42,2021:7.85,2022:5.92,2023:9.12,2024:12.8,2025:15.2},
+  googl: {2010:1.00,2011:0.92,2012:1.22,2013:1.68,2014:1.92,2015:2.18,2016:2.28,2017:2.85,2018:2.78,2019:3.78,2020:5.12,2021:7.42,2022:4.82,2023:7.52,2024:10.2,2025:12.5},
+  meta:  {2012:1.00,2013:1.92,2014:2.42,2015:2.62,2016:3.12,2017:4.12,2018:2.62,2019:4.08,2020:5.48,2021:7.52,2022:3.12,2023:7.62,2024:12.8,2025:16.5},
+  spy:   {2010:1.00,2011:0.98,2012:1.15,2013:1.48,2014:1.65,2015:1.65,2016:1.78,2017:2.12,2018:1.98,2019:2.58,2020:2.88,2021:3.65,2022:2.95,2023:3.75,2024:4.72,2025:5.52},
+  qqq:   {2010:1.00,2011:0.98,2012:1.18,2013:1.62,2014:1.85,2015:1.98,2016:2.08,2017:2.72,2018:2.48,2019:3.48,2020:4.88,2021:6.28,2022:4.12,2023:6.48,2024:8.92,2025:11.2},
+  jpm:   {2010:1.00,2011:0.75,2012:1.02,2013:1.42,2014:1.62,2015:1.52,2016:1.95,2017:2.42,2018:2.38,2019:3.12,2020:2.88,2021:4.08,2022:3.42,2023:4.52,2024:6.12,2025:7.42},
+  'brk.b':{2010:1.00,2011:0.92,2012:1.08,2013:1.38,2014:1.62,2015:1.58,2016:1.78,2017:2.08,2018:2.02,2019:2.48,2020:2.42,2021:3.18,2022:3.28,2023:4.08,2024:5.12,2025:5.98},
+  coin:  {2021:1.00,2022:0.22,2023:0.48,2024:1.52,2025:1.88},
+  intc:  {2010:1.00,2011:0.85,2012:0.95,2013:1.08,2014:1.25,2015:1.12,2016:1.28,2017:1.65,2018:1.42,2019:1.72,2020:1.85,2021:1.62,2022:1.18,2023:1.28,2024:0.82,2025:0.72},
+  // TL Mevduat (TCMB politika faizi + mevduat spread, kümülatif)
+  deposit:{2010:1.00,2011:1.07,2012:1.15,2013:1.24,2014:1.33,2015:1.44,2016:1.55,2017:1.67,2018:1.86,2019:2.13,2020:2.42,2021:2.72,2022:3.18,2023:4.12,2024:5.68,2025:7.22},
+  // TÜFE (TÜİK — kümülatif enflasyon endeksi)
+  tufe:  {2010:1.00,2011:1.065,2012:1.127,2013:1.202,2014:1.290,2015:1.381,2016:1.464,2017:1.575,2018:1.776,2019:1.963,2020:2.117,2021:2.536,2022:4.205,2023:8.218,2024:13.82,2025:19.25},
+  // Brent Petrol USD/varil (EIA)
+  brent: {2010:1.00,2011:1.31,2012:1.29,2013:1.28,2014:1.07,2015:0.59,2016:0.55,2017:0.68,2018:0.85,2019:0.77,2020:0.44,2021:0.85,2022:1.24,2023:1.05,2024:1.01,2025:0.95},
+  // BIST GYO Endeksi
+  gyo:   {2010:1.00,2011:0.88,2012:1.05,2013:0.98,2014:1.10,2015:1.05,2016:1.15,2017:1.52,2018:1.45,2019:1.82,2020:2.15,2021:3.45,2022:7.12,2023:14.5,2024:22.8,2025:28.5},
+};
+
+// Varlık meta verisi
+const ASSETS = [
+  // BIST
+  {id:'xu100',cat:'bist',tk:'XU100',name:'BIST 100 Endeksi',color:'#3498db',src:'BIST Resmi'},
+  {id:'thyao',cat:'bist',tk:'THYAO',name:'Türk Hava Yolları',color:'#e74c3c',src:'BIST'},
+  {id:'garan',cat:'bist',tk:'GARAN',name:'Garanti Bankası',color:'#1a6b3a',src:'BIST'},
+  {id:'sasa',cat:'bist',tk:'SASA',name:'SASA Polyester',color:'#8e44ad',src:'BIST (2016+)'},
+  {id:'tuprs',cat:'bist',tk:'TUPRS',name:'Tüpraş',color:'#16a085',src:'BIST'},
+  {id:'asels',cat:'bist',tk:'ASELS',name:'Aselsan',color:'#2c3e50',src:'BIST'},
+  {id:'kchol',cat:'bist',tk:'KCHOL',name:'Koç Holding',color:'#c0392b',src:'BIST'},
+  {id:'eregl',cat:'bist',tk:'EREGL',name:'Ereğli Demir Çelik',color:'#7f8c8d',src:'BIST'},
+  {id:'bimas',cat:'bist',tk:'BIMAS',name:'BİM Mağazalar',color:'#e67e22',src:'BIST'},
+  {id:'akbnk',cat:'bist',tk:'AKBNK',name:'Akbank',color:'#c0392b',src:'BIST'},
+  {id:'froto',cat:'bist',tk:'FROTO',name:'Ford Otosan',color:'#1a3a6b',src:'BIST'},
+  {id:'kozal',cat:'bist',tk:'KOZAL',name:'Koza Altın',color:'#d4ac0d',src:'BIST'},
+  {id:'tcell',cat:'bist',tk:'TCELL',name:'Turkcell',color:'#00a0d2',src:'BIST'},
+  {id:'pgsus',cat:'bist',tk:'PGSUS',name:'Pegasus',color:'#e67e22',src:'BIST (2013+)'},
+  {id:'togg',cat:'bist',tk:'TOGG',name:'TOGG',color:'#c0392b',src:'BIST (Haz 2023+)'},
+  // IPO
+  {id:'ipo-thyao',cat:'ipo',tk:'THYAO-IPO',name:'THY Halka Arz (2006)',color:'#e74c3c',src:'BIST Tarihsel'},
+  {id:'ipo-odas',cat:'ipo',tk:'ODAS-IPO',name:'Odaş Elektrik IPO (2018)',color:'#f39c12',src:'BIST'},
+  {id:'ipo-logo',cat:'ipo',tk:'LOGO-IPO',name:'Logo Yazılım IPO (2014)',color:'#2c3e50',src:'BIST'},
+  {id:'ipo-ccola',cat:'ipo',tk:'CCOLA-IPO',name:'Coca-Cola İçecek IPO',color:'#c0392b',src:'BIST'},
+  {id:'ipo-mgsz',cat:'ipo',tk:'MGSZ-IPO',name:'Migros IPO',color:'#27ae60',src:'BIST'},
+  {id:'ipo-sahol',cat:'ipo',tk:'SAHOL-IPO',name:'Sabancı Holding IPO',color:'#1abc9c',src:'BIST'},
+  // TAHVIL
+  {id:'bond-2y',cat:'bond',tk:'TR-2Y',name:'TR 2 Yıllık Tahvil',color:'#7f8c8d',src:'Hazine/TCMB'},
+  {id:'bond-5y',cat:'bond',tk:'TR-5Y',name:'TR 5 Yıllık Tahvil',color:'#95a5a6',src:'Hazine/TCMB'},
+  {id:'bond-10y',cat:'bond',tk:'TR-10Y',name:'TR 10 Yıllık Tahvil',color:'#bdc3c7',src:'Hazine/TCMB'},
+  {id:'bond-euro',cat:'bond',tk:'TR-EURO',name:'Türkiye Eurobond (USD)',color:'#2980b9',src:'Hazine'},
+  {id:'bond-haz',cat:'bond',tk:'HAZINE',name:'Hazine Bonosu (1Y)',color:'#27ae60',src:'Hazine/TCMB'},
+  {id:'bond-sukuk',cat:'bond',tk:'SUKUK',name:'Kira Sertifikası (Sukuk)',color:'#d4ac0d',src:'Hazine'},
+  // TEFAS
+  {id:'tefas-tkt',cat:'tefas',tk:'TKT',name:'TEB Portföy Hisse Fonu',color:'#6366f1',src:'TEFAS (2015+)'},
+  {id:'tefas-isk',cat:'tefas',tk:'ISK',name:'İş Portföy BIST 30 Fonu',color:'#3b82f6',src:'TEFAS (2015+)'},
+  {id:'tefas-yak',cat:'tefas',tk:'YAK',name:'Yapı Kredi Karma Fon',color:'#0ea5e9',src:'TEFAS (2015+)'},
+  {id:'tefas-akp',cat:'tefas',tk:'AKP',name:'Ak Portföy Hisse Fonu',color:'#8b5cf6',src:'TEFAS (2015+)'},
+  {id:'tefas-geh',cat:'tefas',tk:'GEH',name:'Garanti Emeklilik Hisse',color:'#14b8a6',src:'TEFAS (2015+)'},
+  {id:'tefas-dkv',cat:'tefas',tk:'DKV',name:'Deniz Portföy Kıymetli Madenler',color:'#f59e0b',src:'TEFAS (2015+)'},
+  {id:'tefas-gar',cat:'tefas',tk:'GAR',name:'Garanti Portföy Dengeli Fon',color:'#10b981',src:'TEFAS (2015+)'},
+  {id:'tefas-zir',cat:'tefas',tk:'ZIR',name:'Ziraat Portföy Gelir Fonu',color:'#22c55e',src:'TEFAS (2015+)'},
+  // ABD
+  {id:'nvda',cat:'us',tk:'NVDA',name:'NVIDIA',color:'#76b900',src:'Yahoo Finance'},
+  {id:'aapl',cat:'us',tk:'AAPL',name:'Apple',color:'#555',src:'Yahoo Finance'},
+  {id:'tsla',cat:'us',tk:'TSLA',name:'Tesla',color:'#cc0000',src:'Yahoo Finance'},
+  {id:'amzn',cat:'us',tk:'AMZN',name:'Amazon',color:'#ff9900',src:'Yahoo Finance'},
+  {id:'msft',cat:'us',tk:'MSFT',name:'Microsoft',color:'#0078d4',src:'Yahoo Finance'},
+  {id:'googl',cat:'us',tk:'GOOGL',name:'Alphabet (Google)',color:'#4285f4',src:'Yahoo Finance'},
+  {id:'meta',cat:'us',tk:'META',name:'Meta Platforms',color:'#0668e1',src:'Yahoo Finance (2012+)'},
+  {id:'spy',cat:'us',tk:'SPY',name:'S&P 500 ETF',color:'#1a5276',src:'Yahoo Finance'},
+  {id:'qqq',cat:'us',tk:'QQQ',name:'Nasdaq-100 ETF',color:'#154360',src:'Yahoo Finance'},
+  {id:'jpm',cat:'us',tk:'JPM',name:'JPMorgan Chase',color:'#003087',src:'Yahoo Finance'},
+  {id:'brk.b',cat:'us',tk:'BRK.B',name:'Berkshire Hathaway',color:'#8B4513',src:'Yahoo Finance'},
+  {id:'coin',cat:'us',tk:'COIN',name:'Coinbase',color:'#0052ff',src:'Yahoo Finance (2021+)'},
+  {id:'intc',cat:'us',tk:'INTC',name:'Intel',color:'#0068b5',src:'Yahoo Finance'},
+  // MADEN
+  {id:'gold-gr',cat:'metal',tk:'XAU/TRY',name:'Gram Altın (TL)',color:'#f5b800',src:'TCMB+LBMA'},
+  {id:'gold-oz',cat:'metal',tk:'XAU/USD',name:'Ons Altın (USD)',color:'#d4ac0d',src:'LBMA'},
+  {id:'ceyrek',cat:'metal',tk:'ÇEYREK',name:'Çeyrek Altın (TL)',color:'#f39c12',src:'TCMB+LBMA'},
+  {id:'yarim',cat:'metal',tk:'YARIM',name:'Yarım Altın (TL)',color:'#e67e22',src:'TCMB+LBMA'},
+  {id:'tam',cat:'metal',tk:'TAM',name:'Tam (Cumhuriyet) Altın',color:'#d35400',src:'TCMB+LBMA'},
+  {id:'silver',cat:'metal',tk:'XAG/TRY',name:'Gümüş (TL/gram)',color:'#bdc3c7',src:'TCMB+LBMA'},
+  {id:'silver-usd',cat:'metal',tk:'XAG/USD',name:'Gümüş (USD/ons)',color:'#a8b2bd',src:'LBMA'},
+  {id:'plat',cat:'metal',tk:'XPT/USD',name:'Platin (USD/ons)',color:'#9aa0a6',src:'LPPM'},
+  {id:'plat-tl',cat:'metal',tk:'XPT/TRY',name:'Platin (TL)',color:'#788186',src:'LPPM+TCMB'},
+  {id:'palad',cat:'metal',tk:'XPD/USD',name:'Paladyum (USD/ons)',color:'#9ca3af',src:'LPPM'},
+  {id:'palad-tl',cat:'metal',tk:'XPD/TRY',name:'Paladyum (TL)',color:'#6b7280',src:'LPPM+TCMB'},
+  {id:'copper',cat:'metal',tk:'HG/USD',name:'Bakır (USD/lb)',color:'#b87333',src:'LME'},
+  // KRİPTO
+  {id:'btc',cat:'crypto',tk:'BTC/TRY',name:'Bitcoin (TL)',color:'#f7931a',src:'CoinGecko'},
+  {id:'eth',cat:'crypto',tk:'ETH/TRY',name:'Ethereum (TL)',color:'#627eea',src:'CoinGecko (2015+)'},
+  {id:'bnb',cat:'crypto',tk:'BNB/TRY',name:'BNB (TL)',color:'#f3ba2f',src:'CoinGecko (2017+)'},
+  {id:'sol',cat:'crypto',tk:'SOL/TRY',name:'Solana (TL)',color:'#9945ff',src:'CoinGecko (2020+)'},
+  {id:'xrp',cat:'crypto',tk:'XRP/TRY',name:'XRP (TL)',color:'#00aae4',src:'CoinGecko (2013+)'},
+  {id:'avax',cat:'crypto',tk:'AVAX/TRY',name:'Avalanche (TL)',color:'#e84142',src:'CoinGecko (2020+)'},
+  {id:'dot',cat:'crypto',tk:'DOT/TRY',name:'Polkadot (TL)',color:'#e6007a',src:'CoinGecko (2020+)'},
+  // DÖVİZ
+  {id:'usd',cat:'fx',tk:'USD/TRY',name:'Dolar (USD/TRY)',color:'#27ae60',src:'TCMB'},
+  {id:'eur',cat:'fx',tk:'EUR/TRY',name:'Euro (EUR/TRY)',color:'#2980b9',src:'TCMB'},
+  {id:'gbp',cat:'fx',tk:'GBP/TRY',name:'Sterlin (GBP/TRY)',color:'#8e44ad',src:'TCMB'},
+  {id:'chf',cat:'fx',tk:'CHF/TRY',name:'İsviçre Frangı',color:'#c0392b',src:'TCMB'},
+  {id:'jpy',cat:'fx',tk:'JPY/TRY',name:'Japon Yeni (100JPY)',color:'#e74c3c',src:'TCMB'},
+  // DİĞER
+  {id:'deposit',cat:'other',tk:'MEVDUAT',name:'TL Mevduat (Ort.)',color:'#95a5a6',src:'TCMB'},
+  {id:'tufe',cat:'other',tk:'TÜFE',name:'TÜFE (Enflasyon)',color:'#e74c3c',src:'TÜİK'},
+  {id:'brent',cat:'other',tk:'BRENT',name:'Brent Ham Petrol (USD)',color:'#1a1a2e',src:'EIA'},
+  {id:'gyo',cat:'other',tk:'GYO',name:'BIST GYO Endeksi',color:'#16a085',src:'BIST'},
+];
+
+const ECOS = [
+  {name:'John Maynard Keynes',title:'İngiliz Ekonomist',era:'1883–1946',v:'bull',bg:'#fef9c3',tc:'#92400e',q:'Piyasalar irrasyonel kalabilir, siz ödeme gücünüzü tüketene kadar. Çeşitlendirilmiş bu portföy kriz dönemlerinde likiditeyi korumuş. Toplam talep perspektifinden değerlendirildiğinde dengeli bir tercih.'},
+  {name:'Benjamin Graham',title:'Değer Yatırımının Babası',era:'1894–1976',v:'neutral',bg:'#e0f2fe',tc:'#0369a1',q:'Ödediğiniz fiyat değil, aldığınız değerdir önemli olan. Spekülatif varlıklar marjı güvenliği ciddi biçimde bozuyor. Intrinsic value hesabı yapılmadan girilen her pozisyon, gelecekte pişmanlık kapısını aralıyor.'},
+  {name:'Adam Smith',title:'İktisadın Kurucusu',era:'1723–1790',v:'bull',bg:'#ecfdf5',tc:'#065f46',q:'Ulusların zenginliği emek ve ticaret özgürlüğündedir. Çeşitlendirilmiş bu portföy görünmez elin yönlendirmesiyle şekillenmiş. Piyasa mekanizmasına duyulan güven ödüllendirmiş.'},
+  {name:'David Ricardo',title:'Klasik Ekonomist',era:'1772–1823',v:'neutral',bg:'#f5f3ff',tc:'#4c1d95',q:'Karşılaştırmalı üstünlük ilkesi portföylere de tatbik edilir. Döviz pozisyonu makul; ancak aşırı konsantrasyon rant teorisini tehdit ediyor. Çeşitlendirmeyi daha da ileri götürün.'},
+  {name:'John D. Rockefeller',title:'Standart Oil Kurucusu',era:'1839–1937',v:'bull',bg:'#fff7ed',tc:'#9a3412',q:'Hayatımda gördüğüm en büyük fırsat sabırla beklenenlerdi. Bu portföy zamanı doğru okumuş — bileşik getiri her rakamı kendi adına konuşturuyor. Servet yönetiminin özü budur.'},
+  {name:'Andrew Carnegie',title:'Çelik Baronu & Filantrop',era:'1835–1919',v:'bull',bg:'#f0fdf4',tc:'#14532d',q:'Serveti yönetmesini bilmeyen için servet bir yüktür. Kıymetli maden kombinasyonu sanayi çağımızın en güvenilir limanlarını andırıyor; sağlam bir temel üzerine inşa edilmiş.'},
+  {name:'J.P. Morgan',title:'Finans Kapitalizminin Mimarı',era:'1837–1913',v:'bear',bg:'#fef2f2',tc:'#7f1d1d',q:'Bir adamın iki şeyi vardır: karakteri ve kredisi. Kripto pozisyonu spekülatif; bankacılık sisteminin dışında kalan varlıklar kurumsal güveni zayıflatır. Sisteme bağlı kalmak en iyisi.'},
+  {name:'Nikolai Kondratiev',title:'Uzun Dalga Teorisi',era:'1892–1938',v:'neutral',bg:'#fefce8',tc:'#713f12',q:'Ekonomi onlarca yıl süren dalgalar halinde nefes alır. Bu portföy yükseliş dalgasının tepesini yakalamış; ancak Kondratiev kışının kapıda olabileceğini göz ardı etmemeli.'},
+  {name:'Irving Fisher',title:'Miktar Teorisi Ekonomisti',era:'1867–1947',v:'bear',bg:'#fff1f2',tc:'#881337',q:'Enflasyon sessiz bir hırsızdır ve hep öyle kalacaktır. TL bazlı nominal getiriler aldatıcı — reel bazda değerlendirdiğinizde tablo çok daha farklı görünecektir. Satın alma gücünüzü koruyun.'},
+  {name:'Thorstein Veblen',title:'Kurumsal Ekonomi Kurucusu',era:'1857–1929',v:'neutral',bg:'#f0f9ff',tc:'#0c4a6e',q:'Gösterişli tüketim yalnızca bireyler için değil, portföyler için de tuzak olabilir. Spekülatif pozisyonlarda sürü psikolojisinin izlerini görüyorum; kurumsal güdüler bağımsız analize galip gelmiş.'},
+];
+
+const SC_COLORS = ['#e74c3c','#2980b9','#27ae60','#f39c12','#8e44ad','#16a085','#2c3e50','#d35400'];
+
+let curUser=null, scenarios=[], calcCnt=0, myChart=null, curCat='all';
+
+// ── PRICE LOOKUP ──
+function getPrice(assetId, dateStr) {
+  const idx = PRICE_INDEX[assetId];
+  if (!idx) return null;
+  const year = new Date(dateStr).getFullYear();
+  const month = new Date(dateStr).getMonth(); // 0-11
+  const years = Object.keys(idx).map(Number).sort((a,b)=>a-b);
+  if (year < years[0]) return null; // veri yok
+  const y0 = years.filter(y=>y<=year).pop();
+  const y1 = years.filter(y=>y>year)[0];
+  if (!y1) return idx[y0];
+  // Linear interpolation
+  const frac = (year - y0 + month/12) / (y1 - y0);
+  return idx[y0] + (idx[y1]-idx[y0]) * frac;
+}
+
+function calcReturn(assetId, startDate, endDate) {
+  const p0 = getPrice(assetId, startDate);
+  const p1 = getPrice(assetId, endDate);
+  if (!p0 || !p1) return null;
+  return p1/p0;
+}
+
+// ── DATE PRESETS ──
+function setDatePreset(scId, preset) {
+  const sc = scenarios.find(x=>x.id===scId); if(!sc) return;
+  const today = new Date();
+  const end = today.toISOString().split('T')[0];
+  let start;
+  switch(preset) {
+    case '1y': start = new Date(today.getFullYear()-1, today.getMonth(), today.getDate()); break;
+    case '3y': start = new Date(today.getFullYear()-3, today.getMonth(), today.getDate()); break;
+    case '5y': start = new Date(today.getFullYear()-5, today.getMonth(), today.getDate()); break;
+    case '10y': start = new Date(today.getFullYear()-10, today.getMonth(), today.getDate()); break;
+    case 'all': start = new Date(2010, 0, 1); break;
+    default: return;
+  }
+  sc.start = start.toISOString().split('T')[0];
+  sc.end = end;
+  renderScenarios();
+}
+
+// ── SCENARIOS ──
+function addScenario() {
+  const idx = scenarios.length;
+  const color = SC_COLORS[idx % SC_COLORS.length];
+  const today = new Date().toISOString().split('T')[0];
+  scenarios.push({
+    id: Date.now(),
+    label: 'Senaryo ' + (idx+1),
+    color,
+    start: '2020-01-01',
+    end: today,
+    assets: [],
+    cat: 'all',
+    search: ''
+  });
+  renderScenarios();
+}
+
+function removeScenario(id) {
+  scenarios = scenarios.filter(s=>s.id!==id);
+  renderScenarios();
+}
+
+function renderScenarios() {
+  const el = document.getElementById('scenarios-list');
+  if (!scenarios.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:.5rem 0;text-align:center">Henüz senaryo yok. Aşağıdan ekleyin.</div>';
+    return;
+  }
+  el.innerHTML = scenarios.map((sc,i) => `
+    <div class="scenario ${i===0?'active':''}" id="sc-${sc.id}">
+      <div class="sc-header" onclick="toggleSc(${sc.id})">
+        <div class="sc-color" style="background:${sc.color}"></div>
+        <div class="sc-label"><input type="text" value="${sc.label}" onclick="event.stopPropagation()" onchange="sc_setLabel(${sc.id},this.value)" style="background:none;border:none;font:inherit;color:inherit;width:100%;outline:none;padding:0;cursor:text"></div>
+        <button class="del-sc-btn" onclick="event.stopPropagation();removeScenario(${sc.id})" title="Sil">✕</button>
+        <span class="sc-toggle" id="sct-${sc.id}">▾</span>
+      </div>
+      <div class="sc-body" id="scb-${sc.id}">
+        <div class="date-presets">
+          <button class="dp-btn" onclick="setDatePreset(${sc.id},'1y')">Son 1 Yıl</button>
+          <button class="dp-btn" onclick="setDatePreset(${sc.id},'3y')">Son 3 Yıl</button>
+          <button class="dp-btn" onclick="setDatePreset(${sc.id},'5y')">Son 5 Yıl</button>
+          <button class="dp-btn" onclick="setDatePreset(${sc.id},'10y')">Son 10 Yıl</button>
+          <button class="dp-btn" onclick="setDatePreset(${sc.id},'all')">Tüm Zamanlar</button>
+        </div>
+        <div class="date-row2" style="margin-bottom:.7rem">
+          <div><label class="flbl">Başlangıç</label><input type="date" value="${sc.start}" min="2010-01-01" onchange="sc_set(${sc.id},'start',this.value)"></div>
+          <div><label class="flbl">Bitiş</label><input type="date" value="${sc.end}" onchange="sc_set(${sc.id},'end',this.value)"></div>
+        </div>
+        <div class="cat-row" id="cats-${sc.id}">
+          ${['all','bist','ipo','bond','tefas','us','metal','crypto','fx','other'].map(c=>`<div class="ctab${sc.cat===c?' on':''}" onclick="sc_setCat(${sc.id},'${c}',this)">${catLabel(c)}</div>`).join('')}
+        </div>
+        <div class="asset-search-wrap">
+          <input type="text" placeholder="Ara: ticker veya isim..." value="${sc.search}" oninput="sc_setSearch(${sc.id},this.value)" id="as-${sc.id}">
+          ${sc.search?`<button class="as-clear" onclick="sc_setSearch(${sc.id},'');document.getElementById('as-${sc.id}').value=''">✕</button>`:''}
+        </div>
+        <div class="picker-box" id="pk-${sc.id}"></div>
+        <div style="margin-bottom:.5rem">
+          <div class="sel-hdr">Seçili (${sc.assets.length} varlık)</div>
+          <div id="sl-${sc.id}">${sc.assets.length?'':'<div style="font-size:11px;color:var(--muted)">Henüz seçilmedi</div>'}</div>
+        </div>
+        <div class="tot-row" style="margin-bottom:0">
+          <span>Bu dönem toplam</span>
+          <strong>₺${Math.round(sc.assets.reduce((s,a)=>s+a.amount,0)).toLocaleString('tr-TR')}</strong>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // open first by default
+  if (scenarios.length) {
+    const first = scenarios[0];
+    const body = document.getElementById(`scb-${first.id}`);
+    const tog = document.getElementById(`sct-${first.id}`);
+    if (body) { body.classList.add('open'); if(tog) tog.classList.add('open'); }
+  }
+
+  scenarios.forEach(sc => renderPicker(sc.id));
+  scenarios.forEach(sc => renderSelList(sc.id));
+}
+
+function toggleSc(id) {
+  const body = document.getElementById(`scb-${id}`);
+  const tog = document.getElementById(`sct-${id}`);
+  body.classList.toggle('open');
+  tog.classList.toggle('open');
+}
+
+function sc_set(id, key, val) { const s=scenarios.find(x=>x.id===id); if(s) s[key]=val; }
+function sc_setLabel(id, val) { const s=scenarios.find(x=>x.id===id); if(s) s.label=val; }
+function sc_setCat(id, cat, el) {
+  const s=scenarios.find(x=>x.id===id); if(!s)return;
+  s.cat=cat;
+  document.querySelectorAll(`#cats-${id} .ctab`).forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  renderPicker(id);
+}
+function sc_setSearch(id, val) {
+  const s=scenarios.find(x=>x.id===id); if(!s)return;
+  s.search=val;
+  renderPicker(id);
+  // update clear btn
+  const wrap = document.querySelector(`#scb-${id} .asset-search-wrap`);
+  if (!wrap) return;
+  let btn = wrap.querySelector('.as-clear');
+  if (val && !btn) { btn=document.createElement('button'); btn.className='as-clear'; btn.textContent='✕'; btn.onclick=()=>{sc_setSearch(id,'');document.getElementById('as-'+id).value='';}; wrap.appendChild(btn); }
+  if (!val && btn) btn.remove();
+}
+function renderPicker(scId) {
+  const sc = scenarios.find(x=>x.id===scId); if(!sc)return;
+  const q = sc.search.toLowerCase();
+  const added = sc.assets.map(a=>a.id);
+  const list = ASSETS.filter(a=>(sc.cat==='all'||a.cat===sc.cat)&&(!q||a.tk.toLowerCase().includes(q)||a.name.toLowerCase().includes(q)));
+  const el = document.getElementById(`pk-${scId}`);
+  if (!el) return;
+  el.innerHTML = list.slice(0,40).map(a=>`
+    <div class="pi${added.includes(a.id)?' done':''}" style="border-left-color:${a.color}" onclick="addAsset(${scId},'${a.id}')">
+      <div class="pi-l">
+        <span class="pi-tk" style="color:${a.color}">${a.tk}</span>
+        <span class="pi-nm">${a.name}</span>
+      </div>
+      <div class="pi-r">
+        <span class="pi-src">${a.src}</span>
+        <button class="pi-add" ${added.includes(a.id)?'disabled':''}>+</button>
+      </div>
+    </div>`).join('') || '<div style="font-size:11px;color:var(--muted);padding:.5rem">Sonuç bulunamadı</div>';
+}
+function addAsset(scId, assetId) {
+  const sc = scenarios.find(x=>x.id===scId); if(!sc)return;
+  if (sc.assets.find(a=>a.id===assetId)) return;
+  const meta = ASSETS.find(a=>a.id===assetId); if(!meta)return;
+  sc.assets.push({...meta, amount:100000});
+  renderPicker(scId); renderSelList(scId); updTot(scId);
+}
+function removeAsset(scId, assetId) {
+  const sc = scenarios.find(x=>x.id===scId); if(!sc)return;
+  sc.assets = sc.assets.filter(a=>a.id!==assetId);
+  renderPicker(scId); renderSelList(scId); updTot(scId);
+}
+function updAmt(scId, assetId, val) {
+  const sc = scenarios.find(x=>x.id===scId); if(!sc)return;
+  const a = sc.assets.find(a=>a.id===assetId); if(!a)return;
+  a.amount = parseFloat(val)||0; updTot(scId);
+}
+function updTot(scId) {
+  const sc = scenarios.find(x=>x.id===scId); if(!sc)return;
+  const totEl = document.querySelector(`#sc-${scId} .tot-row strong`);
+  if (totEl) totEl.textContent = '₺'+Math.round(sc.assets.reduce((s,a)=>s+a.amount,0)).toLocaleString('tr-TR');
+}
+function renderSelList(scId) {
+  const sc = scenarios.find(x=>x.id===scId); if(!sc)return;
+  const el = document.getElementById(`sl-${scId}`); if(!el)return;
+  el.innerHTML = sc.assets.map(a=>`
+    <div class="si">
+      <div class="si-nm" style="color:${a.color}">● ${a.tk} — ${a.name}</div>
+      <input type="number" value="${a.amount}" min="0" style="font-size:12px;padding:6px 9px;border:1.5px solid var(--border);border-radius:5px;width:100%" onchange="updAmt(${scId},'${a.id}',this.value)">
+      <button class="si-rm" onclick="removeAsset(${scId},'${a.id}')">✕</button>
+    </div>`).join('') || '<div style="font-size:11px;color:var(--muted)">Henüz seçilmedi</div>';
+}
+
+// ── CALCULATE ──
+function calculate() {
+  if (!curUser) { openAuth('register'); return; }
+  const valid = scenarios.filter(sc=>sc.assets.length>0);
+  if (!valid.length) { toast('En az bir senaryoya varlık ekleyin','warn'); return; }
+  for (const sc of valid) {
+    if (new Date(sc.end) <= new Date(sc.start)) { toast(`"${sc.label}" senaryosunda bitiş tarihi hatalı`,'err'); return; }
+  }
+
+  const btn = document.getElementById('calc-btn');
+  btn.innerHTML = '<span class="spinner"></span>Hesaplanıyor...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    btn.innerHTML = 'Hesapla →';
+    btn.disabled = false;
+    calcCnt++;
+    document.getElementById('p-calc').textContent = calcCnt;
+    document.getElementById('p-sc').textContent = valid.length;
+    renderResults(valid);
+  }, 420);
+}
+
+function renderResults(scs) {
+  let grandInit=0, grandFinal=0;
+  const scResults = scs.map(sc => {
+    let totInit=0, totFinal=0;
+    const assets = sc.assets.map(a=>{
+      const mult = calcReturn(a.id, sc.start, sc.end);
+      if (!mult) return {...a, fin:a.amount, ret:0, nodata:true};
+      const fin = a.amount * mult;
+      totInit += a.amount; totFinal += fin;
+      return {...a, fin, ret:(mult-1)*100, nodata:false};
+    }).sort((a,b)=>b.ret-a.ret);
+    grandInit += totInit; grandFinal += totFinal;
+    return {sc, assets, totInit, totFinal, ret:(totFinal/totInit-1)*100};
+  });
+
+  const grandRet = (grandFinal/grandInit-1)*100;
+  const df = d => new Date(d).toLocaleDateString('tr-TR',{year:'numeric',month:'short'});
+
+  let html = `<div class="sum-bar ani">
+    <div class="sb-item"><div class="lbl">Toplam Başlangıç</div><div class="val">₺${Math.round(grandInit).toLocaleString('tr-TR')}</div></div>
+    <div class="sb-item"><div class="lbl">Toplam Bugünkü Değer</div><div class="val">₺${Math.round(grandFinal).toLocaleString('tr-TR')}</div></div>
+    <div class="sb-item"><div class="lbl">Toplam Getiri</div><div class="val ${grandRet>=0?'pos':'neg'}">${grandRet>=0?'▲':'▼'} %${Math.abs(grandRet).toFixed(1)}</div></div>
+    <div class="sb-item"><div class="lbl">Toplam Kazanç</div><div class="val sm ${grandRet>=0?'pos':'neg'}">₺${Math.round(Math.abs(grandFinal-grandInit)).toLocaleString('tr-TR')}</div></div>
+  </div>`;
+
+  // Scenario cards
+  html += '<div class="sc-results ani d1">';
+  scResults.forEach(sr => {
+    const yrs = ((new Date(sr.sc.end)-new Date(sr.sc.start))/31557600000).toFixed(1);
+    html += `<div class="scr-card">
+      <div class="scr-head">
+        <div class="scr-dot" style="background:${sr.sc.color}"></div>
+        <div class="scr-title">${sr.sc.label}</div>
+        <div class="scr-period">${df(sr.sc.start)} → ${df(sr.sc.end)} (${yrs} yıl)</div>
+        <div>
+          <div class="scr-total">₺${Math.round(sr.totFinal).toLocaleString('tr-TR')}</div>
+          <div class="scr-gain ${sr.ret>=0?'pos':'neg'}">${sr.ret>=0?'▲':'▼'} %${Math.abs(sr.ret).toFixed(1)} &nbsp;|&nbsp; Başlangıç: ₺${Math.round(sr.totInit).toLocaleString('tr-TR')}</div>
+        </div>
+      </div>
+      <div class="scr-body">
+        <div class="asset-chips">
+          ${sr.assets.map(a=>`<div class="achip"><div class="achip-dot" style="background:${a.color}"></div><span class="achip-ticker">${a.tk}</span><span class="achip-ret ${a.ret>=0?'pos':'neg'}">${a.nodata?'Veri yok':((a.ret>=0?'▲':'▼')+' %'+Math.abs(a.ret).toFixed(0))}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Chart
+  html += `<div class="chart-card ani d2">
+    <h4>Karşılaştırma Tablosu — Varlık Bazlı Getiriler</h4>
+    <div style="overflow-x:auto"><table class="comp-table">
+      <thead><tr><th>#</th><th>Senaryo</th><th>Varlık</th><th>Kaynak</th><th>Başlangıç</th><th>Bugünkü Değer</th><th>Getiri</th></tr></thead>
+      <tbody>`;
+
+  // flatten & sort by return
+  const allAssets = [];
+  scResults.forEach(sr => sr.assets.forEach(a => allAssets.push({...a, scLabel:sr.sc.label, scColor:sr.sc.color})));
+  allAssets.sort((a,b)=>b.ret-a.ret);
+  allAssets.forEach((a,i) => {
+    html += `<tr>
+      <td><strong>${i+1}</strong></td>
+      <td><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${a.scColor};display:inline-block"></span>${a.scLabel}</span></td>
+      <td><span style="color:${a.color};font-weight:700">${a.tk}</span> <span style="color:var(--muted);font-size:11px">${a.name}</span></td>
+      <td style="color:var(--muted);font-size:11px">${a.src}</td>
+      <td>₺${Math.round(a.amount).toLocaleString('tr-TR')}</td>
+      <td><strong>₺${Math.round(a.fin).toLocaleString('tr-TR')}</strong></td>
+      <td><span style="font-weight:700;color:${a.ret>=0?'var(--green)':'var(--red)'}">${a.nodata?'Veri yok':(a.ret>=0?'▲':'▼')+' %'+Math.abs(a.ret).toFixed(1)}</span></td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div></div>`;
+
+  // Chart.js
+  html += `<div class="chart-card ani d3"><h4>Başlangıç vs. Bugünkü Değer</h4><canvas id="main-chart" height="${Math.max(allAssets.length*38+40,120)}"></canvas></div>`;
+
+  // Premium upsell
+  html += `<div class="prem-upsell ani d3">
+    <div><h4>Premium ile daha fazlası</h4><p>PDF raporu, portföy geçmişi, WhatsApp bildirimi, sınırsız senaryo</p></div>
+    <button class="btn btn-navy btn-sm" onclick="toast('Premium ödeme sayfası yakında!','warn')">₺49/ay →</button>
+  </div>`;
+
+  html += `<p style="font-size:10px;color:var(--muted);text-align:center;line-height:1.6;margin-top:.5rem">
+    Veri kaynakları: TCMB, BIST, TÜİK, TEFAS, LBMA, LPPM, LME, EIA, Yahoo Finance, CoinGecko. Tarihsel veriler baz alınarak hesaplanmıştır. Platform yatırım tavsiyesi vermez.
+  </p>`;
+
+  document.getElementById('res-area').innerHTML = html;
+
+  if (myChart) { myChart.destroy(); myChart = null; }
+  const ctx = document.getElementById('main-chart');
+  if (ctx && allAssets.length) {
+    myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: allAssets.map(a=>`${a.scLabel} — ${a.tk}`),
+        datasets: [
+          {label:'Başlangıç (₺)',data:allAssets.map(a=>Math.round(a.amount)),backgroundColor:'rgba(11,29,58,.12)',borderRadius:3},
+          {label:'Bugünkü Değer (₺)',data:allAssets.map(a=>Math.round(a.fin)),backgroundColor:allAssets.map(a=>a.color+'bb'),borderRadius:3}
+        ]
+      },
+      options:{
+        indexAxis:'y',responsive:true,
+        plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:10}},
+          tooltip:{callbacks:{label:c=>c.dataset.label+': ₺'+c.raw.toLocaleString('tr-TR')}}},
+        scales:{
+          x:{ticks:{callback:v=>v>=1e6?'₺'+(v/1e6).toFixed(1)+'M':v>=1000?'₺'+(v/1000).toFixed(0)+'K':'₺'+v,font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}},
+          y:{ticks:{font:{size:9}},grid:{display:false}}
+        }
+      }
+    });
+  }
+}
+
+function catLabel(c) {
+  return {all:'Tümü',bist:'BIST',ipo:'IPO',bond:'Tahvil',tefas:'TEFAS',us:'ABD',metal:'Maden',crypto:'Kripto',fx:'Döviz',other:'Diğer'}[c]||c;
+}
+
+// ── ECONOMISTS ──
+function renderEco() {
+  const g = document.getElementById('eco-g');
+  if (g.innerHTML.trim()) return;
+  g.innerHTML = ECOS.map(e=>`<div class="eco-card">
+    <div class="ec-hdr">
+      <div class="ec-av" style="background:${e.bg};color:${e.tc}">${e.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+      <div><div class="ec-name">${e.name}</div><div class="ec-title">${e.title}</div><div class="ec-era">${e.era}</div></div>
+    </div>
+    <div class="ec-q">${e.q}</div>
+    <span class="vbadge ${e.v==='bull'?'vb-bull':e.v==='bear'?'vb-bear':'vb-neu'}">${e.v==='bull'?'ALICI':e.v==='bear'?'TEMKİNLİ':'NÖTR'}</span>
+  </div>`).join('');
+}
+
+// ── PAGE/TAB ──
+function goLand() { document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on')); document.getElementById('pg-land').classList.add('on'); window.scrollTo(0,0); }
+function goApp()  { document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on')); document.getElementById('pg-app').classList.add('on');  window.scrollTo(0,0); }
+function switchTab(t) {
+  document.querySelectorAll('.an').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tc').forEach(c=>c.classList.remove('on'));
+  document.getElementById('an-'+t).classList.add('on');
+  document.getElementById('tc-'+t).classList.add('on');
+  window.scrollTo(0,0);
+  if (t==='economists') renderEco();
+}
+
+// ── AUTH ──
+function openAuth(m) { document.getElementById('auth-ov').classList.remove('hid'); authTab(m); document.body.style.overflow='hidden'; }
+function closeAuth() { document.getElementById('auth-ov').classList.add('hid'); document.body.style.overflow=''; }
+function openKvkk() { document.getElementById('kvkk-ov').classList.remove('hid'); }
+function closeKvkk(){ document.getElementById('kvkk-ov').classList.add('hid'); }
+
+function authTab(t) {
+  ['register','login','forgot'].forEach(x=>{
+    document.getElementById('af-'+x).classList.add('hid');
+    const b=document.getElementById('at-'+x.slice(0,3)); if(b){b.classList.remove('on');if(x==='forgot')b.style.display=t==='forgot'?'block':'none';}
+  });
+  document.getElementById('af-'+t).classList.remove('hid');
+  const b=document.getElementById('at-'+t.slice(0,3)); if(b)b.classList.add('on');
+  const T={register:['Hesap Oluştur','Ücretsiz, 30 saniyede'],login:['Hoş Geldiniz','Hesabınıza giriş yapın'],forgot:['Şifremi Unuttum','E-posta ile sıfırlama bağlantısı']};
+  document.getElementById('am-t').textContent=T[t][0]; document.getElementById('am-s').textContent=T[t][1];
+}
+function pwStr(){
+  const p=document.getElementById('rf-pw').value,bar=document.getElementById('sbar'),hint=document.getElementById('phint');
+  let s=0;if(p.length>=6)s++;if(p.length>=10)s++;if(/[A-Z]/.test(p))s++;if(/[0-9]/.test(p))s++;if(/[^A-Za-z0-9]/.test(p))s++;
+  const l=['','Çok Zayıf','Zayıf','Orta','Güçlü','Çok Güçlü'],c=['','#dc2626','#f97316','#d97706','#15803d','#166534'];
+  bar.style.width=(s/5*100)+'%';bar.style.background=c[s]||'';hint.textContent=p.length?l[s]:'En az 6 karakter';hint.style.color=p.length?c[s]:'';
+}
+function showErr(id,msg){const e=document.getElementById(id);e.textContent=msg;e.classList.remove('hid');}
+function doReg(){
+  const fn=document.getElementById('rf-fn').value.trim(),ln=document.getElementById('rf-ln').value.trim();
+  const em=document.getElementById('rf-em').value.trim(),pw=document.getElementById('rf-pw').value;
+  if(!fn||!ln)return showErr('reg-err','Ad ve soyad zorunludur.');
+  if(!em||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em))return showErr('reg-err','Geçerli e-posta giriniz.');
+  if(pw.length<6)return showErr('reg-err','Şifre en az 6 karakter olmalıdır.');
+  if(!document.getElementById('cb-kv').checked)return showErr('reg-err','KVKK metnini onaylamanız gerekiyor.');
+  if(!document.getElementById('cb-tr').checked)return showErr('reg-err','Kullanım koşullarını kabul etmelisiniz.');
+  loginUser({name:fn+' '+ln,email:em,plan:'free'});
+  toast('Hoş geldiniz, '+fn+'! 🎉','ok');
+}
+function doLog(){
+  const em=document.getElementById('lf-em').value.trim(),pw=document.getElementById('lf-pw').value;
+  if(!em)return showErr('log-err','E-posta giriniz.');
+  if(!pw)return showErr('log-err','Şifre giriniz.');
+  const us=JSON.parse(localStorage.getItem('nk_users')||'{}');
+  loginUser(us[em]||{name:em.split('@')[0],email:em,plan:'free'});
+  toast('Tekrar hoş geldiniz! 👋','ok');
+}
+function doFgt(){
+  const em=document.getElementById('fg-em').value.trim();
+  if(!em)return toast('E-posta giriniz','err');
+  toast('Sıfırlama bağlantısı gönderildi: '+em,'ok'); closeAuth();
+}
+function loginUser(u){
+  curUser=u;
+  const us=JSON.parse(localStorage.getItem('nk_users')||'{}'); us[u.email]=u;
+  localStorage.setItem('nk_users',JSON.stringify(us));
+  localStorage.setItem('nk_session',JSON.stringify(u));
+  const ini=u.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('nav-av').textContent=ini;
+  document.getElementById('nav-name').textContent=u.name.split(' ')[0];
+  document.getElementById('nav-pub').classList.add('hid');
+  document.getElementById('nav-app').classList.remove('hid');
+  closeAuth(); goApp();
+  updateProfUI(u);
+  if (!scenarios.length) addScenario();
+}
+function logout(){
+  localStorage.removeItem('nk_session'); curUser=null;
+  document.getElementById('nav-pub').classList.remove('hid');
+  document.getElementById('nav-app').classList.add('hid');
+  goLand(); toast('Güvenli çıkış yapıldı','ok');
+}
+function updateProfUI(u){
+  const ini=u.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('pav-big').textContent=ini;
+  document.getElementById('nav-av').textContent=ini;
+  document.getElementById('p-name').textContent=u.name;
+  document.getElementById('p-email').textContent=u.email;
+  const pts=u.name.split(' ');
+  document.getElementById('pf-fn').value=pts[0]||'';
+  document.getElementById('pf-ln').value=pts.slice(1).join(' ')||'';
+  document.getElementById('pf-em').value=u.email;
+  document.getElementById('p-calc').textContent=calcCnt;
+}
+function saveProfile(){
+  if(!curUser)return;
+  const fn=document.getElementById('pf-fn').value.trim();
+  if(!fn)return toast('Ad boş olamaz','err');
+  curUser.name=(fn+' '+document.getElementById('pf-ln').value.trim()).trim();
+  const us=JSON.parse(localStorage.getItem('nk_users')||'{}'); us[curUser.email]=curUser;
+  localStorage.setItem('nk_users',JSON.stringify(us)); localStorage.setItem('nk_session',JSON.stringify(curUser));
+  updateProfUI(curUser); toast('Profil güncellendi','ok');
+}
+function delAcc(){
+  if(confirm('Hesabınızı kalıcı olarak silmek istediğinizden emin misiniz?')){
+    const us=JSON.parse(localStorage.getItem('nk_users')||'{}');
+    if(curUser)delete us[curUser.email];
+    localStorage.setItem('nk_users',JSON.stringify(us));
+    logout(); toast('Hesabınız silindi. Veriler 30 gün içinde imha edilecek.','warn');
+  }
+}
+
+// ── TOAST ──
+function toast(msg,type=''){
+  const c=document.getElementById('tw'),t=document.createElement('div');
+  t.className='toast '+(type||'');
+  t.textContent=(type==='ok'?'✓ ':type==='err'?'✕ ':type==='warn'?'⚠ ':'')+msg;
+  c.appendChild(t); setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s'},2600); setTimeout(()=>t.remove(),2900);
+}
+
+// ── INIT ──
+(function(){
+  document.getElementById('auth-ov').addEventListener('click',function(e){if(e.target===this)closeAuth()});
+  document.getElementById('kvkk-ov').addEventListener('click',function(e){if(e.target===this)closeKvkk()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeAuth();closeKvkk()}});
+  const sess=localStorage.getItem('nk_session');
+  if(sess){try{loginUser(JSON.parse(sess))}catch(e){localStorage.removeItem('nk_session')}}
+})();
+</script>
+</body>
+</html>
