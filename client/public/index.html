@@ -6,363 +6,362 @@
 <title>nekazandı.com</title>
 <meta name="description" content="Geçmişte ne yatırsaydın bugün ne kazanırdın? Gerçek verilerle portföy simülatörü.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
-  --navy:#0b1d3a;--navy2:#122447;--gold:#f5b800;--gold2:#ffd633;
-  --green:#15803d;--red:#b91c1c;--blue:#1d4ed8;
-  --bg:#f4f3ef;--bg2:#eceae5;--white:#ffffff;
-  --text:#0f0f0f;--muted:#5f6b7a;--border:#dddbd6;
-  --r:10px;--r-sm:7px;
-  --sh:0 1px 12px rgba(11,29,58,.07);--sh2:0 4px 28px rgba(11,29,58,.13);
+  --navy:#1a1f36;--navy2:#252b48;--blue:#2563eb;--blue2:#1d4fd8;
+  --green:#059669;--red:#dc2626;--gold:#ca8a04;
+  --bg:#f8f9fa;--bg2:#f1f5f9;--white:#ffffff;
+  --text:#1e293b;--muted:#64748b;--border:#e2e8f0;
+  --r:4px;--r-sm:4px;
+  --sh:0 1px 3px rgba(0,0,0,.08);--sh2:0 2px 8px rgba(0,0,0,.1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
-h1,h2,h3,h4,.logo-txt{font-family:'Syne',sans-serif}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.4}
+h1,h2,h3,h4,.logo-txt{font-family:'Inter',system-ui,sans-serif;line-height:1.2}
 .hid{display:none!important}
-@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fi{from{opacity:0}to{opacity:1}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.ani{animation:up .35s cubic-bezier(.22,1,.36,1) both}
-.d1{animation-delay:.06s}.d2{animation-delay:.12s}.d3{animation-delay:.18s}
+.ani{animation:up .25s ease both}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.15s}
 
 /* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;border:none;text-decoration:none;white-space:nowrap}
-.btn-gold{background:var(--gold);color:var(--navy)}
-.btn-gold:hover{background:var(--gold2);transform:translateY(-1px)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:none;text-decoration:none;white-space:nowrap;height:36px}
+.btn-gold{background:var(--blue);color:#fff}
+.btn-gold:hover{background:var(--blue2)}
 .btn-navy{background:var(--navy);color:#fff}
 .btn-navy:hover{background:var(--navy2)}
-.btn-ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.25)}
-.btn-ghost:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.45)}
-.btn-out{background:transparent;color:var(--navy);border:1.5px solid var(--border)}
+.btn-ghost{background:transparent;color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.2)}
+.btn-ghost:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.35);color:#fff}
+.btn-out{background:transparent;color:var(--text);border:1px solid var(--border)}
 .btn-out:hover{border-color:var(--navy);background:var(--bg2)}
-.btn-sm{padding:7px 13px;font-size:12px}
-.btn-full{width:100%;justify-content:center;padding:12px}
-.btn-danger{background:#b91c1c;color:#fff;border:none}
-.btn-danger:hover{background:#991b1b}
+.btn-sm{padding:6px 12px;font-size:12px;height:32px}
+.btn-full{width:100%;justify-content:center;padding:10px;height:36px}
+.btn-danger{background:#dc2626;color:#fff;border:none}
+.btn-danger:hover{background:#b91c1c}
 
 /* ── INPUTS ── */
-input,select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border-color .18s}
-input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,184,0,.1)}
-input::placeholder{color:#c0bfbb}
+input,select{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border-color .15s;height:36px}
+input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+input::placeholder{color:#94a3b8}
 .flbl{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
 
 /* ── NAV ── */
-#nav{position:fixed;top:0;left:0;right:0;z-index:80;background:rgba(11,29,58,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.05)}
-.nav-in{max-width:1080px;margin:0 auto;padding:0 1.25rem;height:56px;display:flex;align-items:center;justify-content:space-between}
-.logo-txt{font-size:18px;font-weight:800;color:#fff;cursor:pointer;letter-spacing:-.3px}
-.logo-txt span{color:var(--gold)}
+#nav{position:fixed;top:0;left:0;right:0;z-index:80;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-in{max-width:1120px;margin:0 auto;padding:0 1.25rem;height:52px;display:flex;align-items:center;justify-content:space-between}
+.logo-txt{font-size:16px;font-weight:800;color:#fff;cursor:pointer;letter-spacing:-.3px}
+.logo-txt span{color:var(--blue)}
 .nav-right{display:flex;align-items:center;gap:8px}
-.nav-av{width:31px;height:31px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:var(--navy);cursor:pointer;transition:.18s;flex-shrink:0}
-.nav-av:hover{transform:scale(1.08)}
-.nav-name{font-size:13px;color:rgba(255,255,255,.7)}
+.nav-av{width:30px;height:30px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer;transition:.15s;flex-shrink:0}
+.nav-av:hover{opacity:.85}
+.nav-name{font-size:13px;color:rgba(255,255,255,.6)}
 
 /* ── PAGES ── */
 .pg{display:none}
 .pg.on{display:block}
 
 /* ── LANDING ── */
-#pg-land{padding-top:56px}
-.hero{background:var(--navy);min-height:88vh;display:flex;align-items:center;position:relative;overflow:hidden}
-.hero-glow{position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(245,184,0,.07) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none}
-.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:52px 52px;mask-image:radial-gradient(ellipse at 60% 40%,black 20%,transparent 75%)}
-.hero-in{max-width:1080px;margin:0 auto;padding:3.5rem 1.25rem;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;position:relative;z-index:1}
-.h-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(245,184,0,.09);border:1px solid rgba(245,184,0,.2);color:var(--gold);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:1.4rem;letter-spacing:.5px;text-transform:uppercase}
-.h-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:pulse 2s infinite}
+#pg-land{padding-top:52px}
+.hero{background:var(--navy);padding:4rem 0;position:relative}
+.hero-in{max-width:1120px;margin:0 auto;padding:0 1.25rem;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;position:relative;z-index:1}
+.h-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.2);color:var(--blue);font-size:11px;font-weight:600;padding:4px 12px;border-radius:3px;margin-bottom:1.2rem;letter-spacing:.3px;text-transform:uppercase}
+.h-dot{width:5px;height:5px;background:var(--blue);border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.hero h1{font-size:clamp(2rem,4vw,3.2rem);font-weight:800;color:#fff;line-height:1.13;margin-bottom:1.1rem}
+.hero h1{font-size:clamp(1.75rem,3.5vw,2.25rem);font-weight:800;color:#fff;line-height:1.2;margin-bottom:.8rem}
 .hero h1 em{color:var(--gold);font-style:normal}
-.hero-sub{font-size:15px;color:rgba(255,255,255,.52);line-height:1.75;margin-bottom:1.75rem;max-width:560px}
-.hero-ctas{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin-bottom:2rem}
-.hero-stats{display:flex;gap:2.5rem;flex-wrap:wrap;justify-content:center}
-.hs-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff}
-.hs-lbl{font-size:11px;color:rgba(255,255,255,.38);margin-top:1px}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.45);line-height:1.5;margin-bottom:1.5rem;max-width:520px}
+.hero-ctas{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:1.5rem}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap;justify-content:center}
+.hs-num{font-size:20px;font-weight:800;color:#fff}
+.hs-lbl{font-size:11px;color:rgba(255,255,255,.3);margin-top:1px}
 
 /* asset strip */
-.strip{background:var(--white);border-bottom:1px solid var(--border);padding:.7rem 0;overflow-x:auto}
-.strip-in{display:flex;gap:6px;padding:0 1.25rem;width:max-content}
-.sc{display:inline-flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:#374151;white-space:nowrap}
+.strip{background:var(--white);border-bottom:1px solid var(--border);padding:.5rem 0;overflow-x:auto}
+.strip-in{display:flex;gap:4px;padding:0 1.25rem;width:max-content}
+.sc{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--text);white-space:nowrap}
 .sc-cnt{font-size:10px;color:var(--muted);font-weight:400}
 
 /* features */
-.sec{max-width:1080px;margin:0 auto;padding:3.5rem 1.25rem}
-.sec-lbl{font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
-.sec-ttl{font-size:clamp(1.4rem,2.6vw,2rem);font-weight:800;color:var(--navy);margin-bottom:.8rem}
-.sec-sub{font-size:13px;color:var(--muted);line-height:1.7;max-width:500px;margin-bottom:2rem}
-.feat-g{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
-.fc{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;transition:all .3s cubic-bezier(.22,1,.36,1)}
-.fc:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 8px 32px rgba(11,29,58,.15);border-color:rgba(245,184,0,.4)}
-.fc-ic{font-size:20px;margin-bottom:.65rem}
-.fc h3{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:.3rem}
-.fc p{font-size:12px;color:var(--muted);line-height:1.6}
+.sec{max-width:1120px;margin:0 auto;padding:3rem 1.25rem}
+.sec-lbl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--blue);margin-bottom:.35rem}
+.sec-ttl{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:.5rem}
+.sec-sub{font-size:13px;color:var(--muted);line-height:1.5;max-width:480px;margin-bottom:1.5rem}
+.feat-g{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+.fc{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1rem;transition:all .15s ease}
+.fc:hover{box-shadow:var(--sh2);border-color:#cbd5e1}
+.fc-ic{width:6px;height:6px;background:var(--blue);border-radius:50%;margin-bottom:.5rem}
+.fc h3{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:.2rem}
+.fc p{font-size:12px;color:var(--muted);line-height:1.5}
 
 /* how */
-.how{background:var(--navy);padding:3.5rem 0}
+.how{background:var(--navy);padding:3rem 0}
 .how .sec-ttl{color:#fff}
-.how .sec-sub{color:rgba(255,255,255,.4)}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1.75rem;position:relative}
-.steps::before{content:'';position:absolute;top:25px;left:17%;right:17%;height:1px;background:rgba(245,184,0,.18)}
+.how .sec-sub{color:rgba(255,255,255,.35)}
+.how .sec-lbl{color:rgba(37,99,235,.7)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;position:relative}
+.steps::before{content:'';position:absolute;top:20px;left:17%;right:17%;height:1px;background:rgba(37,99,235,.15)}
 .step{text-align:center}
-.step-n{width:50px;height:50px;background:rgba(245,184,0,.1);border:2px solid rgba(245,184,0,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--gold);margin:0 auto .85rem}
-.step h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:.35rem}
-.step p{font-size:12px;color:rgba(255,255,255,.38);line-height:1.6}
+.step-n{width:40px;height:40px;background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:var(--blue);margin:0 auto .6rem}
+.step h3{font-size:13px;font-weight:700;color:#fff;margin-bottom:.25rem}
+.step p{font-size:12px;color:rgba(255,255,255,.35);line-height:1.5}
 
 /* pricing */
-.price-g{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2rem}
-.pc{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:1.5rem;position:relative;transition:.2s}
-.pc:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
-.pc.feat{border-color:var(--gold);background:var(--navy)}
-.pc.feat .pc-name,.pc.feat .pc-desc{color:rgba(255,255,255,.4)!important}
-.pc.feat .pc-price{color:var(--gold)!important}
-.pc.feat sup{color:var(--gold)!important}
-.pc.feat li{color:rgba(255,255,255,.6)!important;border-color:rgba(255,255,255,.07)!important}
-.pc.feat li::before{color:var(--gold)!important}
-.pbadge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--navy);font-size:10px;font-weight:800;padding:3px 13px;border-radius:20px;white-space:nowrap;font-family:'Syne',sans-serif}
-.pc-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.55rem}
-.pc-price{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--navy)}
-.pc-price sup{font-size:14px;vertical-align:top;margin-top:7px}
-.pc-price span{font-size:13px;font-weight:400;color:var(--muted)}
-.pc-desc{font-size:12px;color:var(--muted);margin:.6rem 0 1rem;line-height:1.6}
-.pc-feats{list-style:none;margin-bottom:1.25rem}
-.pc-feats li{font-size:12px;color:var(--muted);padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.price-g{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:1.5rem}
+.pc{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;position:relative;transition:.15s}
+.pc:hover{box-shadow:var(--sh2)}
+.pc.feat{border:2px solid var(--blue);background:var(--white)}
+.pc.feat .pc-name{color:var(--blue)!important}
+.pc.feat .pc-price{color:var(--navy)!important}
+.pc.feat sup{color:var(--navy)!important}
+.pc.feat li{color:var(--text)!important;border-color:var(--border)!important}
+.pc.feat li::before{color:var(--blue)!important}
+.pbadge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 12px;border-radius:3px;white-space:nowrap}
+.pc-name{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.4rem}
+.pc-price{font-size:28px;font-weight:800;color:var(--navy)}
+.pc-price sup{font-size:13px;vertical-align:top;margin-top:5px}
+.pc-price span{font-size:12px;font-weight:400;color:var(--muted)}
+.pc-desc{font-size:12px;color:var(--muted);margin:.4rem 0 .8rem;line-height:1.5}
+.pc-feats{list-style:none;margin-bottom:1rem}
+.pc-feats li{font-size:12px;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
 .pc-feats li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
 
 /* footer */
-footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,255,.38);font-size:12px}
-.ft-in{max-width:1080px;margin:0 auto}
-.ft-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;margin-bottom:2rem}
-.ft-brand p{margin-top:.6rem;line-height:1.7;max-width:220px;font-size:12px}
-.ft-col h4{font-family:'Syne',sans-serif;font-size:12px;color:#fff;margin-bottom:.8rem;font-weight:700}
-.ft-col a{display:block;color:rgba(255,255,255,.38);text-decoration:none;padding:3px 0;cursor:pointer;transition:.15s}
+footer{background:var(--navy);padding:2rem 1.25rem 1rem;color:rgba(255,255,255,.35);font-size:11px}
+.ft-in{max-width:1120px;margin:0 auto}
+.ft-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+.ft-brand p{margin-top:.4rem;line-height:1.6;max-width:200px;font-size:11px}
+.ft-col h4{font-size:11px;color:rgba(255,255,255,.7);margin-bottom:.5rem;font-weight:700}
+.ft-col a{display:block;color:rgba(255,255,255,.35);text-decoration:none;padding:2px 0;cursor:pointer;transition:.12s;font-size:11px}
 .ft-col a:hover{color:#fff}
-.ft-bot{border-top:1px solid rgba(255,255,255,.06);padding-top:1rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;font-size:11px}
-.ft-disc{font-size:10px;color:rgba(255,255,255,.18);line-height:1.6;margin-top:.6rem}
+.ft-bot{border-top:1px solid rgba(255,255,255,.06);padding-top:.75rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;font-size:10px}
+.ft-disc{font-size:10px;color:rgba(255,255,255,.15);line-height:1.5;margin-top:.5rem}
 
 /* ── OVERLAYS ── */
-.ov{position:fixed;inset:0;background:rgba(5,12,24,.72);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;animation:fi .2s}
-.mbox{background:var(--white);border-radius:16px;width:100%;max-width:440px;max-height:92vh;overflow-y:auto;animation:up .28s cubic-bezier(.22,1,.36,1)}
-.m-hdr{padding:1.4rem 1.4rem 0;display:flex;justify-content:space-between;align-items:flex-start}
-.m-hdr h2{font-size:19px;font-weight:800;color:var(--navy)}
-.m-hdr p{font-size:12px;color:var(--muted);margin-top:.2rem}
-.m-close{background:var(--bg2);border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s}
+.ov{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;animation:fi .15s}
+.mbox{background:var(--white);border-radius:8px;width:100%;max-width:420px;max-height:92vh;overflow-y:auto;animation:up .2s ease;border:1px solid var(--border)}
+.m-hdr{padding:1.25rem 1.25rem 0;display:flex;justify-content:space-between;align-items:flex-start}
+.m-hdr h2{font-size:16px;font-weight:800;color:var(--navy)}
+.m-hdr p{font-size:12px;color:var(--muted);margin-top:.15rem}
+.m-close{background:var(--bg2);border:none;width:28px;height:28px;border-radius:4px;cursor:pointer;font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.12s}
 .m-close:hover{background:var(--border)}
 .m-body{padding:1.25rem}
-.auth-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:1.25rem}
-.auth-tab{flex:1;text-align:center;padding:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:.18s}
-.auth-tab.on{color:var(--navy);border-bottom-color:var(--gold);font-weight:700}
-.fld{margin-bottom:.8rem}
-.f2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.cbrow{display:flex;gap:8px;margin-bottom:.55rem;align-items:flex-start}
-.cbrow input[type=checkbox]{width:14px;height:14px;margin-top:2px;flex-shrink:0;accent-color:var(--gold);cursor:pointer}
-.cbrow label{font-size:12px;color:var(--muted);line-height:1.5;cursor:pointer}
-.cbrow label a,.lnk{color:var(--navy);font-weight:700;text-decoration:underline;cursor:pointer}
-.div2{display:flex;align-items:center;gap:9px;margin:.8rem 0;color:var(--muted);font-size:11px}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.auth-tab{flex:1;text-align:center;padding:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s}
+.auth-tab.on{color:var(--navy);border-bottom-color:var(--blue);font-weight:700}
+.fld{margin-bottom:.7rem}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cbrow{display:flex;gap:8px;margin-bottom:.5rem;align-items:flex-start}
+.cbrow input[type=checkbox]{width:14px;height:14px;margin-top:2px;flex-shrink:0;accent-color:var(--blue);cursor:pointer}
+.cbrow label{font-size:12px;color:var(--muted);line-height:1.4;cursor:pointer}
+.cbrow label a,.lnk{color:var(--blue);font-weight:600;text-decoration:underline;cursor:pointer}
+.div2{display:flex;align-items:center;gap:8px;margin:.7rem 0;color:var(--muted);font-size:11px}
 .div2::before,.div2::after{content:'';flex:1;height:1px;background:var(--border)}
-.soc{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:9px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--white);font-size:12px;font-weight:500;cursor:pointer;transition:.18s}
+.soc{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--white);font-size:12px;font-weight:500;cursor:pointer;transition:.12s;height:36px}
 .soc:hover{border-color:var(--navy)}
-.ebox{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;font-size:12px;padding:8px 11px;border-radius:var(--r-sm);margin-bottom:.6rem}
+.ebox{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;font-size:12px;padding:8px 10px;border-radius:var(--r);margin-bottom:.5rem}
 .sbar{height:3px;border-radius:2px;margin-top:4px;transition:all .3s;width:0}
 .phint{font-size:10px;color:var(--muted);margin-top:2px}
 .flnk{text-align:right;font-size:11px;margin-top:2px}
 .flnk a{color:var(--muted);cursor:pointer;text-decoration:underline}
-.kvkk-txt h4{font-size:13px;font-weight:700;color:var(--navy);margin:1rem 0 .3rem}
-.kvkk-txt p{font-size:12px;color:var(--muted);line-height:1.7}
+.kvkk-txt h4{font-size:13px;font-weight:700;color:var(--navy);margin:.8rem 0 .2rem}
+.kvkk-txt p{font-size:12px;color:var(--muted);line-height:1.6}
 
 /* ── APP ── */
-#pg-app{padding-top:56px;min-height:100vh}
-.app-in{max-width:1080px;margin:0 auto;padding:1.25rem}
+#pg-app{padding-top:52px;min-height:100vh}
+.app-in{max-width:1120px;margin:0 auto;padding:1rem 1.25rem}
 
 /* app nav tabs */
-.app-nav{display:flex;gap:3px;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:3px;margin-bottom:1.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.an{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:.18s;border:none;background:none;white-space:nowrap}
-.an.on{background:var(--navy);color:#fff;font-weight:700}
-.an:hover:not(.on){background:var(--bg)}
+.app-nav{display:flex;gap:0;background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:1rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.an{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:0;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:.12s;border:none;background:none;white-space:nowrap;border-bottom:2px solid transparent}
+.an.on{color:var(--navy);font-weight:700;border-bottom-color:var(--blue)}
+.an:hover:not(.on){color:var(--text)}
 .tc{display:none}
-.tc.on{display:block;animation:up .3s cubic-bezier(.22,1,.36,1)}
+.tc.on{display:block;animation:up .2s ease}
 
 /* ── PORTFOLIO TAB ── */
-.pf-layout{display:grid;grid-template-columns:400px 1fr;gap:1.25rem;align-items:start}
+.pf-layout{display:grid;grid-template-columns:400px 1fr;gap:1rem;align-items:start}
 
 /* form panel */
-.form-panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--sh)}
-.fp-title{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:8px}
-.fp-title span{font-size:11px;background:rgba(245,184,0,.12);color:#92400e;border:1px solid rgba(245,184,0,.25);padding:2px 8px;border-radius:8px;font-weight:700}
+.form-panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1rem;box-shadow:var(--sh)}
+.fp-title{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.fp-title span{font-size:10px;background:rgba(37,99,235,.08);color:var(--blue);border:1px solid rgba(37,99,235,.15);padding:2px 8px;border-radius:3px;font-weight:700}
 
 /* scenario system */
-.scenarios{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1rem}
-.scenario{background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;transition:.18s}
-.scenario.active{border-color:var(--gold);background:rgba(245,184,0,.03)}
-.sc-header{display:flex;align-items:center;gap:8px;padding:.65rem .85rem;cursor:pointer}
-.sc-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.scenarios{display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem}
+.scenario{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:.12s}
+.scenario.active{border-color:var(--blue);background:rgba(37,99,235,.02)}
+.sc-header{display:flex;align-items:center;gap:8px;padding:.55rem .75rem;cursor:pointer}
+.sc-color{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .sc-label{font-size:13px;font-weight:600;color:var(--navy);flex:1}
 .sc-label input{background:none;border:none;font:inherit;color:inherit;width:100%;outline:none;padding:0}
-.sc-toggle{font-size:16px;color:var(--muted);transition:transform .2s}
+.sc-toggle{font-size:14px;color:var(--muted);transition:transform .15s}
 .sc-toggle.open{transform:rotate(180deg)}
-.sc-body{padding:0 .85rem .85rem;display:none}
+.sc-body{padding:0 .75rem .75rem;display:none}
 .sc-body.open{display:block}
-.date-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.75rem}
+.date-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.6rem}
 
 /* date presets */
-.date-presets{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.55rem}
-.dp-btn{padding:3px 9px;border:1px solid var(--border);border-radius:12px;font-size:10px;font-weight:600;cursor:pointer;color:var(--muted);transition:.15s;background:var(--white)}
-.dp-btn:hover{border-color:var(--gold);color:var(--navy);background:rgba(245,184,0,.05)}
+.date-presets{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:.45rem}
+.dp-btn{padding:3px 8px;border:1px solid var(--border);border-radius:3px;font-size:10px;font-weight:600;cursor:pointer;color:var(--muted);transition:.12s;background:var(--white)}
+.dp-btn:hover{border-color:var(--blue);color:var(--blue)}
 
 /* category tabs */
-.cat-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.6rem}
-.ctab{padding:4px 9px;border:1px solid var(--border);border-radius:14px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:.15s;background:var(--white)}
+.cat-row{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:.5rem}
+.ctab{padding:3px 8px;border:1px solid var(--border);border-radius:3px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:.12s;background:var(--white)}
 .ctab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
-.ctab:hover:not(.on){border-color:var(--gold);color:var(--navy)}
+.ctab:hover:not(.on){border-color:var(--blue);color:var(--blue)}
 
 /* asset picker */
-.asset-search-wrap{position:relative;margin-bottom:.4rem}
+.asset-search-wrap{position:relative;margin-bottom:.35rem}
 .asset-search-wrap input{padding-right:32px}
-.as-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:2px}
-.picker-box{max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--white);margin-bottom:.65rem}
-.pi{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #f3f4f6;cursor:pointer;transition:.12s;border-left:3px solid transparent}
+.as-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;padding:2px}
+.picker-box{max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r);background:var(--white);margin-bottom:.5rem}
+.pi{display:flex;align-items:center;justify-content:space-between;padding:0 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:.08s;border-left:3px solid transparent;height:40px}
 .pi:last-child{border-bottom:none}
-.pi:hover:not(.done){background:rgba(245,184,0,.04)}
-.pi.done{opacity:.32;pointer-events:none}
+.pi:hover:not(.done){background:rgba(37,99,235,.03)}
+.pi.done{opacity:.3;pointer-events:none}
 .pi-l{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
-.pi-tk{font-weight:800;font-size:12px;min-width:60px;flex-shrink:0;letter-spacing:-.2px}
+.pi-tk{font-family:'SF Mono','Consolas','Monaco',monospace;font-weight:700;font-size:12px;min-width:60px;flex-shrink:0;letter-spacing:-.2px}
 .pi-nm{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pi-r{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .pi-src{font-size:9px;color:var(--muted);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pi-add{background:var(--navy);color:#fff;border:none;width:22px;height:22px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;line-height:1}
-.pi-add:hover{background:var(--gold);color:var(--navy)}
+.pi-add{background:var(--blue);color:#fff;border:none;width:22px;height:22px;border-radius:50%;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.12s;line-height:1}
+.pi-add:hover{background:var(--navy)}
 
 /* selected assets */
-.sel-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:.4rem}
-.si{display:grid;grid-template-columns:1fr 110px 26px;gap:5px;align-items:center;margin-bottom:5px}
+.sel-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:.35rem}
+.si{display:grid;grid-template-columns:1fr 110px 26px;gap:5px;align-items:center;margin-bottom:4px}
 .si-nm{font-size:11px;font-weight:600;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.si-rm{height:28px;background:var(--bg2);border:1px solid var(--border);border-radius:5px;cursor:pointer;color:var(--muted);font-size:12px;transition:.15s}
+.si-rm{height:28px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--muted);font-size:12px;transition:.12s}
 .si-rm:hover{background:#fee2e2;color:var(--red);border-color:#fca5a5}
 
 /* total + calc */
-.tot-row{background:var(--bg);border-radius:var(--r-sm);padding:.55rem .85rem;display:flex;justify-content:space-between;align-items:center;margin:.65rem 0;font-size:12px}
-.tot-row strong{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--navy)}
-.add-sc-btn{display:flex;align-items:center;gap:6px;background:none;border:1.5px dashed var(--border);border-radius:var(--r-sm);padding:8px 12px;font-size:12px;color:var(--muted);cursor:pointer;width:100%;transition:.18s;margin-bottom:.85rem}
-.add-sc-btn:hover{border-color:var(--gold);color:var(--navy);background:rgba(245,184,0,.03)}
-.del-sc-btn{background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:.15s;flex-shrink:0}
+.tot-row{background:var(--bg);border-radius:var(--r);padding:.5rem .75rem;display:flex;justify-content:space-between;align-items:center;margin:.5rem 0;font-size:12px}
+.tot-row strong{font-size:14px;font-weight:800;color:var(--navy)}
+.add-sc-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed var(--border);border-radius:var(--r);padding:7px 12px;font-size:12px;color:var(--muted);cursor:pointer;width:100%;transition:.12s;margin-bottom:.75rem}
+.add-sc-btn:hover{border-color:var(--blue);color:var(--blue)}
+.del-sc-btn{background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:2px 6px;border-radius:3px;transition:.12s;flex-shrink:0}
 .del-sc-btn:hover{background:#fee2e2}
 
 /* ── RESULTS ── */
-.res-wrap{display:flex;flex-direction:column;gap:1rem}
-.ph-box{background:var(--white);border:2px dashed var(--border);border-radius:var(--r);padding:3rem;text-align:center;color:var(--muted)}
-.ph-ic{font-size:34px;margin-bottom:.75rem}
-.ph-box p{font-size:13px;line-height:1.7}
+.res-wrap{display:flex;flex-direction:column;gap:.75rem}
+.ph-box{background:var(--white);border:1px dashed var(--border);border-radius:var(--r);padding:2.5rem;text-align:center;color:var(--muted)}
+.ph-ic{font-size:28px;margin-bottom:.5rem;color:var(--muted)}
+.ph-box p{font-size:13px;line-height:1.5}
 
 /* summary bar */
-.sum-bar{background:linear-gradient(135deg,var(--navy),#162d52);border-radius:12px;padding:1.5rem 1.75rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;align-items:center;box-shadow:0 4px 20px rgba(11,29,58,.25)}
+.sum-bar{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;align-items:center;box-shadow:var(--sh)}
 .sb-item{text-align:center}
-.sb-item .lbl{font-size:10px;letter-spacing:.4px;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:.3rem}
-.sb-item .val{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--gold)}
-.sb-item .val.pos{color:#4ade80}
-.sb-item .val.neg{color:#f87171}
+.sb-item .lbl{font-size:10px;letter-spacing:.3px;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem}
+.sb-item .val{font-size:18px;font-weight:800;color:var(--navy)}
+.sb-item .val.pos{color:var(--green)}
+.sb-item .val.neg{color:var(--red)}
 .sb-item .val.sm{font-size:14px}
 
 /* scenario result cards */
-.sc-results{display:flex;flex-direction:column;gap:.85rem}
+.sc-results{display:flex;flex-direction:column;gap:.65rem}
 .scr-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
-.scr-head{display:flex;align-items:center;gap:10px;padding:.85rem 1rem;border-bottom:1px solid var(--border)}
-.scr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.scr-title{font-size:14px;font-weight:700;color:var(--navy);flex:1}
+.scr-head{display:flex;align-items:center;gap:10px;padding:.75rem 1rem;border-bottom:1px solid var(--border)}
+.scr-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.scr-title{font-size:13px;font-weight:700;color:var(--navy);flex:1}
 .scr-period{font-size:11px;color:var(--muted)}
-.scr-total{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--navy);text-align:right}
+.scr-total{font-size:16px;font-weight:800;color:var(--navy);text-align:right}
 .scr-gain{font-size:11px;font-weight:600;text-align:right;margin-top:1px}
 .scr-gain.pos{color:var(--green)}
 .scr-gain.neg{color:var(--red)}
-.scr-body{padding:.85rem 1rem}
-.asset-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.75rem}
-.achip{display:flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px 9px;font-size:11px}
-.achip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.scr-body{padding:.75rem 1rem}
+.asset-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.5rem}
+.achip{display:flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:2px 8px;font-size:11px}
+.achip-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .achip-ticker{font-weight:700;color:var(--navy)}
 .achip-ret{font-weight:600}
 .achip-ret.pos{color:var(--green)}
 .achip-ret.neg{color:var(--red)}
 
 /* chart */
-.chart-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--sh)}
-.chart-card h4{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:.85rem}
-.chart-tabs{display:flex;gap:4px;margin-bottom:1rem}
-.chart-tab{padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:.15s;background:var(--white)}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1rem;box-shadow:var(--sh)}
+.chart-card h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:.65rem}
+.chart-tabs{display:flex;gap:3px;margin-bottom:.75rem}
+.chart-tab{padding:4px 10px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:.12s;background:var(--white)}
 .chart-tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 
 /* comparison table */
 .comp-table{width:100%;border-collapse:collapse;font-size:12px}
-.comp-table th{background:var(--bg);padding:8px 10px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;border-bottom:1px solid var(--border)}
-.comp-table td{padding:7px 10px;border-bottom:1px solid #f3f4f6;color:var(--text)}
+.comp-table th{background:var(--bg);padding:6px 8px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;border-bottom:1px solid var(--border)}
+.comp-table td{padding:5px 8px;border-bottom:1px solid #f1f5f9;color:var(--text)}
 .comp-table tr:last-child td{border-bottom:none}
-.comp-table tr:hover td{background:rgba(245,184,0,.03)}
+.comp-table tr:hover td{background:rgba(37,99,235,.02)}
 .rank-1{font-weight:700;color:var(--navy)}
 
 /* premium upsell */
-.prem-upsell{background:linear-gradient(135deg,var(--gold),#ff9f00);border-radius:var(--r);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
-.prem-upsell h4{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--navy)}
-.prem-upsell p{font-size:11px;color:rgba(10,22,40,.55);margin-top:2px}
+.prem-upsell{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+.prem-upsell h4{font-size:13px;font-weight:700;color:var(--navy)}
+.prem-upsell p{font-size:11px;color:var(--muted);margin-top:1px}
 
 /* ── ECONOMISTS ── */
-.eco-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.85rem}
-.eco-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;transition:.2s}
-.eco-card:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
-.ec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:.8rem}
-.ec-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;flex-shrink:0}
+.eco-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.65rem}
+.eco-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:.85rem;transition:.12s}
+.eco-card:hover{box-shadow:var(--sh2)}
+.ec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:.6rem}
+.ec-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
 .ec-name{font-size:13px;font-weight:700;color:var(--navy)}
 .ec-title{font-size:10px;color:var(--muted)}
-.ec-era{font-size:9px;background:rgba(245,184,0,.1);color:#92400e;padding:1px 6px;border-radius:6px;display:inline-block;margin-top:2px}
-.ec-q{font-size:11px;color:#4b5563;line-height:1.7;font-style:italic;border-left:2px solid var(--gold);padding-left:10px;margin-bottom:.55rem}
-.vbadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:8px}
-.vb-bull{background:#dcfce7;color:#15803d}
-.vb-bear{background:#fee2e2;color:#b91c1c}
-.vb-neu{background:#fefce8;color:#854d0e}
+.ec-era{font-size:9px;background:var(--bg2);color:var(--muted);padding:1px 6px;border-radius:3px;display:inline-block;margin-top:2px}
+.ec-q{font-size:11px;color:#475569;line-height:1.6;font-style:italic;border-left:2px solid var(--blue);padding-left:10px;margin-bottom:.45rem}
+.vbadge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px}
+.vb-bull{background:#dcfce7;color:#059669}
+.vb-bear{background:#fee2e2;color:#dc2626}
+.vb-neu{background:#f1f5f9;color:#64748b}
 
 /* ── SPONSORS ── */
-.sp-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
-.sp-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:1.25rem;position:relative;transition:all .3s cubic-bezier(.22,1,.36,1);overflow:hidden}
-.sp-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(11,29,58,.14);border-color:rgba(245,184,0,.35)}
-.sp-badge{position:absolute;top:-1px;right:12px;font-size:9px;font-weight:800;padding:2px 8px;border-radius:0 0 6px 6px;text-transform:uppercase;letter-spacing:.3px}
-.spb-s{background:var(--gold);color:var(--navy)}
-.spb-r{background:#dcfce7;color:#15803d}
-.sp-logo{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:.5rem}
-.sp-offer{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:.65rem}
-.sp-ret{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--green);margin-bottom:.6rem}
+.sp-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.65rem}
+.sp-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1rem;position:relative;transition:.12s;overflow:hidden}
+.sp-card:hover{box-shadow:var(--sh2)}
+.sp-badge{position:absolute;top:0;right:10px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:0 0 3px 3px;text-transform:uppercase;letter-spacing:.2px}
+.spb-s{background:var(--blue);color:#fff}
+.spb-r{background:#dcfce7;color:#059669}
+.sp-logo{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:.35rem}
+.sp-offer{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:.5rem}
+.sp-ret{font-size:18px;font-weight:800;color:var(--green);margin-bottom:.45rem}
 .sp-ret span{font-size:10px;font-weight:400;color:var(--muted)}
 
 /* ── PROFILE ── */
-.prof-layout{display:grid;grid-template-columns:260px 1fr;gap:1.1rem;align-items:start}
-.prof-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;box-shadow:var(--sh);margin-bottom:.85rem;text-align:center}
-.pav-big{width:68px;height:68px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--navy);margin:0 auto .75rem}
-.pname{font-size:16px;font-weight:800;color:var(--navy)}
+.prof-layout{display:grid;grid-template-columns:260px 1fr;gap:.85rem;align-items:start}
+.prof-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:.85rem;box-shadow:var(--sh);margin-bottom:.65rem;text-align:center}
+.pav-big{width:60px;height:60px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;margin:0 auto .6rem}
+.pname{font-size:15px;font-weight:800;color:var(--navy)}
 .pemail{font-size:12px;color:var(--muted);margin-top:2px}
-.pplan{display:inline-block;margin:.6rem auto 1rem;background:rgba(245,184,0,.08);border:1px solid rgba(245,184,0,.25);border-radius:15px;padding:3px 12px;font-size:11px;font-weight:700;color:var(--navy)}
-.pstats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:.85rem}
-.pst{background:var(--bg);border-radius:7px;padding:.55rem;text-align:center}
-.pst .n{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--navy)}
+.pplan{display:inline-block;margin:.5rem auto .75rem;background:var(--bg2);border:1px solid var(--border);border-radius:3px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--text)}
+.pstats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:.65rem}
+.pst{background:var(--bg);border-radius:var(--r);padding:.45rem;text-align:center}
+.pst .n{font-size:16px;font-weight:800;color:var(--navy)}
 .pst .l{font-size:9px;color:var(--muted);margin-top:1px}
-.prof-sec h4{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:.85rem}
-.dzone{background:#fef2f2;border:1px solid #fecaca;border-radius:var(--r);padding:.85rem;margin-top:.75rem}
-.dzone h4{color:#b91c1c;font-size:12px;font-weight:700;margin-bottom:.35rem}
-.dzone p{font-size:11px;color:#7f1d1d;line-height:1.55;margin-bottom:.5rem}
+.prof-sec h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:.65rem}
+.dzone{background:#fef2f2;border:1px solid #fecaca;border-radius:var(--r);padding:.65rem;margin-top:.6rem}
+.dzone h4{color:#dc2626;font-size:12px;font-weight:700;margin-bottom:.25rem}
+.dzone p{font-size:11px;color:#7f1d1d;line-height:1.5;margin-bottom:.4rem}
 
 /* TOAST */
-.tw{position:fixed;bottom:1.25rem;right:1.25rem;z-index:999;display:flex;flex-direction:column;gap:6px}
-.toast{background:var(--navy);color:#fff;padding:10px 15px;border-radius:9px;font-size:12px;display:flex;align-items:center;gap:7px;min-width:180px;box-shadow:var(--sh2);animation:up .25s ease}
-.toast.ok{background:#15803d}
-.toast.err{background:#b91c1c}
-.toast.warn{background:#92400e}
+.tw{position:fixed;bottom:1rem;right:1rem;z-index:999;display:flex;flex-direction:column;gap:5px}
+.toast{background:var(--navy);color:#fff;padding:8px 14px;border-radius:4px;font-size:12px;display:flex;align-items:center;gap:6px;min-width:160px;box-shadow:var(--sh2);animation:up .2s ease}
+.toast.ok{background:#059669}
+.toast.err{background:#dc2626}
+.toast.warn{background:#ca8a04}
 
 /* SPINNER */
-.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px}
 
 @media(max-width:900px){
-  .hero-in{padding:2.5rem 1.25rem}
+  .hero-in{padding:2rem 1.25rem}
   .pf-layout{grid-template-columns:1fr}
   .feat-g,.price-g,.steps{grid-template-columns:1fr 1fr}
   .steps::before{display:none}
   .prof-layout{grid-template-columns:1fr}
   .ft-top{grid-template-columns:1fr 1fr}
-  .sum-bar{grid-template-columns:1fr 1fr;gap:.75rem}
+  .sum-bar{grid-template-columns:1fr 1fr;gap:.5rem}
 }
 @media(max-width:580px){
   .feat-g,.price-g,.steps{grid-template-columns:1fr}
@@ -379,15 +378,15 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
 <!-- NAV -->
 <nav id="nav">
   <div class="nav-in">
-    <div class="logo-txt" onclick="goLand()">ne<span>kazandı</span>.com</div>
+    <div class="logo-txt" onclick="goLand()">ne<span>kazandi</span>.com</div>
     <div class="nav-right" id="nav-pub">
       <button class="btn btn-ghost btn-sm" onclick="openAuth('login')">Giriş Yap</button>
       <button class="btn btn-gold btn-sm" onclick="openAuth('register')">Ücretsiz Dene</button>
     </div>
     <div class="nav-right hid" id="nav-app">
       <div class="nav-av" id="nav-av" onclick="switchTab('profil')" title="Profil">AK</div>
-      <span class="nav-name" id="nav-name">Kullanıcı</span>
-      <button class="btn btn-ghost btn-sm" onclick="logout()">Çıkış</button>
+      <span class="nav-name" id="nav-name">Kullanici</span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Cikis</button>
     </div>
   </div>
 </nav>
@@ -395,13 +394,12 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
 <!-- ══════════ LANDING ══════════ -->
 <div id="pg-land" class="pg on">
   <section class="hero">
-    <div class="hero-glow"></div><div class="hero-grid"></div>
     <div class="hero-in">
       <div class="h-badge ani"><div class="h-dot"></div>Gerçek Verilerle Portföy Simülatörü</div>
       <h1 class="ani d1">Ne Yatırsaydın,<br>Ne <em>Kazanırdın?</em></h1>
       <p class="hero-sub ani d2">BIST hisseleri, halka arzlar, tahviller, TEFAS fonları, ABD hisseleri, altın, gümüş, platin ve daha fazlası. Çoklu dönem, gerçek veriler.</p>
       <div class="hero-ctas ani d3">
-        <button class="btn btn-gold" onclick="openAuth('register')">✦ Ücretsiz Hesap Aç</button>
+        <button class="btn btn-gold" onclick="openAuth('register')">Ücretsiz Hesap Aç</button>
         <button class="btn btn-ghost" onclick="openAuth('login')">Giriş Yap</button>
       </div>
       <div class="hero-stats ani d3" style="display:none">
@@ -412,46 +410,46 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
   <!-- asset strip -->
   <div class="strip">
     <div class="strip-in">
-      <div class="sc">📈 BIST Hisseleri <span class="sc-cnt">(17)</span></div>
-      <div class="sc">🚀 Halka Arzlar <span class="sc-cnt">(8)</span></div>
-      <div class="sc">📋 Tahvil & Bono <span class="sc-cnt">(8)</span></div>
-      <div class="sc">📊 TEFAS Fonları <span class="sc-cnt">(8)</span></div>
-      <div class="sc">🇺🇸 ABD Hisseleri <span class="sc-cnt">(14)</span></div>
-      <div class="sc">🥇 Altın (gram/ons/çeyrek/yarım/tam)</div>
-      <div class="sc">🥈 Gümüş</div>
-      <div class="sc">🔵 Platin</div>
-      <div class="sc">🟤 Paladyum & Bakır</div>
-      <div class="sc">₿ Kripto <span class="sc-cnt">(7)</span></div>
-      <div class="sc">💵 Döviz <span class="sc-cnt">(5)</span></div>
-      <div class="sc">🏦 Mevduat & TÜFE</div>
+      <div class="sc">BIST Hisseleri <span class="sc-cnt">(17)</span></div>
+      <div class="sc">Halka Arzlar <span class="sc-cnt">(8)</span></div>
+      <div class="sc">Tahvil & Bono <span class="sc-cnt">(8)</span></div>
+      <div class="sc">TEFAS Fonlari <span class="sc-cnt">(8)</span></div>
+      <div class="sc">ABD Hisseleri <span class="sc-cnt">(14)</span></div>
+      <div class="sc">Altin (gram/ons/ceyrek/yarim/tam)</div>
+      <div class="sc">Gumus</div>
+      <div class="sc">Platin</div>
+      <div class="sc">Paladyum & Bakir</div>
+      <div class="sc">Kripto <span class="sc-cnt">(7)</span></div>
+      <div class="sc">Doviz <span class="sc-cnt">(5)</span></div>
+      <div class="sc">Mevduat & TUFE</div>
     </div>
   </div>
 
   <!-- features -->
   <div class="sec">
-    <div class="sec-lbl">Neden nekazandı.com?</div>
+    <div class="sec-lbl">Neden nekazandi.com?</div>
     <h2 class="sec-ttl">Gerçek veriler, gerçek sonuçlar</h2>
     <p class="sec-sub">Türkiye'nin tek portföy zaman makinesi. Pişmanlık yerine geçmişten öğren.</p>
     <div class="feat-g">
-      <div class="fc ani"><div class="fc-ic">⏳</div><h3>Zaman Makinesi</h3><p>2010'dan bugüne istediğin tarihi seç. Kriz, yükseliş, enflasyon dönemlerini karşılaştır.</p></div>
-      <div class="fc ani d1"><div class="fc-ic">🔄</div><h3>Çoklu Dönem</h3><p>Birden fazla senaryo oluştur. "2018'de alsaydım" ile "2020'de alsaydım"ı yan yana gör.</p></div>
-      <div class="fc ani d2"><div class="fc-ic">📊</div><h3>Gerçek Veriler</h3><p>TCMB, BIST ve uluslararası kaynaklardan alınan historik fiyat verileri.</p></div>
-      <div class="fc ani d1"><div class="fc-ic">📈</div><h3>130+ Araç</h3><p>BIST hisseleri, tahviller, TEFAS fonları, halka arzlar, ABD hisseleri, kıymetli madenler, kripto, döviz.</p></div>
-      <div class="fc ani d2"><div class="fc-ic">🏆</div><h3>Karşılaştırma</h3><p>Tüm senaryolarını ve varlıklarını tek grafikte karşılaştır. En kazançlıyı anında gör.</p></div>
-      <div class="fc ani d3"><div class="fc-ic">🧠</div><h3>Uzman Yorumları</h3><p>Tarihin büyük ekonomist figürlerinin portföyüne bakış açısı.</p></div>
+      <div class="fc ani"><div class="fc-ic"></div><h3>Zaman Makinesi</h3><p>2010'dan bugüne istediğin tarihi seç. Kriz, yükseliş, enflasyon dönemlerini karşılaştır.</p></div>
+      <div class="fc ani d1"><div class="fc-ic"></div><h3>Çoklu Dönem</h3><p>Birden fazla senaryo oluştur. "2018'de alsaydım" ile "2020'de alsaydım"i yan yana gör.</p></div>
+      <div class="fc ani d2"><div class="fc-ic"></div><h3>Gerçek Veriler</h3><p>TCMB, BIST ve uluslararası kaynaklardan alınan historik fiyat verileri.</p></div>
+      <div class="fc ani d1"><div class="fc-ic"></div><h3>130+ Araç</h3><p>BIST hisseleri, tahviller, TEFAS fonları, halka arzlar, ABD hisseleri, kıymetli madenler, kripto, döviz.</p></div>
+      <div class="fc ani d2"><div class="fc-ic"></div><h3>Karşılaştırma</h3><p>Tüm senaryolarını ve varlıklarını tek grafikte karşılaştır. En kazançlıyı anında gör.</p></div>
+      <div class="fc ani d3"><div class="fc-ic"></div><h3>Uzman Yorumları</h3><p>Tarihin büyük ekonomist figürlerinin portföyüne bakış açısı.</p></div>
     </div>
   </div>
 
   <!-- how -->
   <section class="how">
     <div class="sec">
-      <div class="sec-lbl" style="color:rgba(245,184,0,.6)">Nasıl çalışır?</div>
-      <h2 class="sec-ttl">3 adımda hesapla</h2>
-      <p class="sec-sub">Kayıt 30 saniye, ilk hesaplama 60 saniye.</p>
+      <div class="sec-lbl">Nasil calisir?</div>
+      <h2 class="sec-ttl">3 adimda hesapla</h2>
+      <p class="sec-sub">Kayit 30 saniye, ilk hesaplama 60 saniye.</p>
       <div class="steps">
-        <div class="step"><div class="step-n">1</div><h3>Senaryo Oluştur</h3><p>Farklı dönemler için ayrı senaryo ekle. Renk ile ayırt et.</p></div>
+        <div class="step"><div class="step-n">1</div><h3>Senaryo Olustur</h3><p>Farkli donemler icin ayri senaryo ekle. Renk ile ayirt et.</p></div>
         <div class="step"><div class="step-n">2</div><h3>Varlık Seç</h3><p>Her senaryoya istediğin kadar varlık ve yatırım tutarı ekle.</p></div>
-        <div class="step"><div class="step-n">3</div><h3>Karşılaştır</h3><p>Tüm senaryoları tek grafikte gör. Kazananı ve kaybedeni anında bul.</p></div>
+        <div class="step"><div class="step-n">3</div><h3>Karsilastir</h3><p>Tum senaryolari tek grafikte gor. Kazanani ve kaybedeni aninda bul.</p></div>
       </div>
     </div>
   </section>
@@ -459,29 +457,29 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
   <!-- pricing -->
   <div class="sec">
     <div class="sec-lbl">Planlar</div>
-    <h2 class="sec-ttl">Herkes için bir plan</h2>
+    <h2 class="sec-ttl">Herkes icin bir plan</h2>
     <p class="sec-sub">Ücretsiz başla. Kredi kartı gerekmez.</p>
     <div class="price-g">
       <div class="pc">
         <div class="pc-name">Ücretsiz</div>
         <div class="pc-price"><sup>₺</sup>0</div>
-        <p class="pc-desc">Başlamak için yeterli.</p>
-        <ul class="pc-feats"><li>Günde 5 hesaplama</li><li>2 senaryo</li><li>Temel grafik</li><li>Tarihsel yorumlar</li></ul>
+        <p class="pc-desc">Baslamak icin yeterli.</p>
+        <ul class="pc-feats"><li>Gunde 5 hesaplama</li><li>2 senaryo</li><li>Temel grafik</li><li>Tarihsel yorumlar</li></ul>
         <button class="btn btn-out btn-full" onclick="openAuth('register')">Ücretsiz Başla</button>
       </div>
       <div class="pc feat">
-        <div class="pbadge">En Popüler</div>
+        <div class="pbadge">En Populer</div>
         <div class="pc-name">Premium</div>
         <div class="pc-price"><sup>₺</sup>49<span>/ay</span></div>
         <p class="pc-desc">Ciddi yatırımcılar için.</p>
-        <ul class="pc-feats"><li>Sınırsız hesaplama</li><li>Sınırsız senaryo</li><li>130+ araç</li><li>PDF raporu</li><li>Portföy geçmişi</li><li>WhatsApp bildirimi</li></ul>
-        <button class="btn btn-gold btn-full" onclick="openAuth('register')">Premium Başla</button>
+        <ul class="pc-feats"><li>Sinirsiz hesaplama</li><li>Sinirsiz senaryo</li><li>130+ arac</li><li>PDF raporu</li><li>Portfoy gecmisi</li><li>WhatsApp bildirimi</li></ul>
+        <button class="btn btn-gold btn-full" onclick="openAuth('register')">Premium Basla</button>
       </div>
       <div class="pc">
         <div class="pc-name">Kurumsal</div>
         <div class="pc-price"><sup>₺</sup>499<span>/ay</span></div>
         <p class="pc-desc">API ve white-label.</p>
-        <ul class="pc-feats"><li>API erişimi</li><li>White-label</li><li>SLA garantisi</li><li>Dedicated yönetici</li></ul>
+        <ul class="pc-feats"><li>API erisimi</li><li>White-label</li><li>SLA garantisi</li><li>Dedicated yonetici</li></ul>
         <button class="btn btn-out btn-full" onclick="toast('destek@nekazandi.com','warn')">Teklif Al</button>
       </div>
     </div>
@@ -491,14 +489,14 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
     <div class="ft-in">
       <div class="ft-top">
         <div class="ft-brand">
-          <div class="logo-txt" style="font-size:17px">ne<span>kazandı</span>.com</div>
+          <div class="logo-txt" style="font-size:15px">ne<span>kazandi</span>.com</div>
           <p>Türkiye'nin portföy zaman makinesi. Gerçek verilerle geçmişten öğren.</p>
         </div>
         <div class="ft-col"><h4>Platform</h4><a onclick="openAuth('register')">Ücretsiz Kaydol</a><a onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Özellikler</a><a onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Fiyatlar</a></div>
-        <div class="ft-col"><h4>Hukuki</h4><a onclick="openKvkk()">KVKK Metni</a><a>Kullanım Koşulları</a><a>Çerez Politikası</a></div>
-        <div class="ft-col"><h4>İletişim</h4><a>kvkk@nekazandi.com</a><a>destek@nekazandi.com</a></div>
+        <div class="ft-col"><h4>Hukuki</h4><a onclick="openKvkk()">KVKK Metni</a><a>Kullanim Kosullari</a><a>Cerez Politikasi</a></div>
+        <div class="ft-col"><h4>Iletisim</h4><a>kvkk@nekazandi.com</a><a>destek@nekazandi.com</a></div>
       </div>
-      <div class="ft-bot"><span>© 2025 Nekazandi Teknoloji A.Ş. Tüm hakları saklıdır.</span><span>İstanbul, Türkiye</span></div>
+      <div class="ft-bot"><span>&copy; 2026 Nekazandı Teknoloji A.S. Tüm hakları saklıdır.</span><span>İstanbul, Türkiye</span></div>
       <p class="ft-disc">Bu platform yatırım tavsiyesi vermez. Hesaplamalar tarihsel verilere dayalı tahmini niteliktedir. Geçmiş performans gelecek getiriyi garanti etmez. Yatırım kararlarınız için SPK lisanslı yatırım danışmanına başvurunuz.</p>
     </div>
   </footer>
@@ -508,10 +506,10 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
 <div id="pg-app" class="pg">
   <div class="app-in">
     <div class="app-nav">
-      <button class="an on" id="an-portfolio" onclick="switchTab('portfolio')"><span style="font-size:15px">💼</span><span class="an-lbl">Portföy</span></button>
-      <button class="an" id="an-economists" onclick="switchTab('economists')"><span style="font-size:15px">🧠</span><span class="an-lbl">Ekonomistler</span></button>
-      <button class="an" id="an-sponsors" onclick="switchTab('sponsors')"><span style="font-size:15px">🏦</span><span class="an-lbl">Alternatif Teklifler</span></button>
-      <button class="an" id="an-profil" onclick="switchTab('profil')"><span style="font-size:15px">👤</span><span class="an-lbl">Profil</span></button>
+      <button class="an on" id="an-portfolio" onclick="switchTab('portfolio')"><span class="an-lbl">Portfoy</span></button>
+      <button class="an" id="an-economists" onclick="switchTab('economists')"><span class="an-lbl">Ekonomistler</span></button>
+      <button class="an" id="an-sponsors" onclick="switchTab('sponsors')"><span class="an-lbl">Alternatif Teklifler</span></button>
+      <button class="an" id="an-profil" onclick="switchTab('profil')"><span class="an-lbl">Profil</span></button>
     </div>
 
     <!-- ── PORTFOLIO ── -->
@@ -526,14 +524,14 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
 
           <button class="add-sc-btn" onclick="addScenario()">+ Yeni Dönem / Senaryo Ekle</button>
 
-          <button class="btn btn-navy btn-full" id="calc-btn" onclick="calculate()">Hesapla →</button>
+          <button class="btn btn-navy btn-full" id="calc-btn" onclick="calculate()">Hesapla</button>
         </div>
 
         <!-- RIGHT: results -->
         <div id="res-area">
           <div class="ph-box">
-            <div class="ph-ic">📊</div>
-            <p>Sol panelden dönem ve varlık seçin,<br><strong>Hesapla</strong> butonuna basın.</p>
+            <div class="ph-ic">&#8594;</div>
+            <p>Sol panelden donem ve varlik secin,<br><strong>Hesapla</strong> butonuna basin.</p>
           </div>
         </div>
       </div>
@@ -541,30 +539,30 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
 
     <!-- ── ECONOMISTS ── -->
     <div class="tc" id="tc-economists">
-      <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin-bottom:.3rem">Tarihin Büyük İsimleri Yorumluyor</h2>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:1.1rem">Portföyünüze tarihsel ekonomist figürlerinin bakış açısı</p>
+      <h2 style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:.2rem">Tarihin Buyuk Isimleri Yorumluyor</h2>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:.85rem">Portfoyunuze tarihsel ekonomist figurlerinin bakis acisi</p>
       <div class="eco-g" id="eco-g"></div>
-      <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:1rem;padding:.65rem;background:var(--bg2);border-radius:var(--r-sm)">⚠️ Yapay zeka üretimi yorumlar. Gerçek görüşleri yansıtmaz. Yatırım tavsiyesi değildir.</div>
+      <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:.75rem;padding:.5rem;background:var(--bg2);border-radius:var(--r)">Yapay zeka üretimi yorumlar. Gerçek görüşleri yansıtmaz. Yatırım tavsiyesi değildir.</div>
     </div>
 
     <!-- ── SPONSORS ── -->
     <div class="tc" id="tc-sponsors">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;flex-wrap:wrap;gap:.4rem">
         <div>
-          <h2 style="font-size:18px;font-weight:800;color:var(--navy);margin-bottom:.2rem">Alternatif Portföy Önerileri</h2>
-          <p style="font-size:13px;color:var(--muted)">Finansal kurumların size özel güncel alternatifleri</p>
+          <h2 style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:.15rem">Alternatif Portfoy Onerileri</h2>
+          <p style="font-size:12px;color:var(--muted)">Finansal kurumlarin size ozel guncel alternatifleri</p>
         </div>
-        <span style="font-size:10px;color:var(--muted);background:var(--bg2);padding:3px 8px;border-radius:5px">Sponsorlu İçerik</span>
+        <span style="font-size:10px;color:var(--muted);background:var(--bg2);padding:2px 8px;border-radius:3px">Sponsorlu Icerik</span>
       </div>
       <div class="sp-g">
-        <div class="sp-card"><div class="sp-badge spb-s">Sponsor</div><div class="sp-logo">🏦 AkBank Yatırım</div><div class="sp-offer">%85 BIST Endeks Fonu + %15 Eurobond. Yıllık otomatik rebalancing ile profesyonel portföy yönetimi.</div><div class="sp-ret">+%28 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
-        <div class="sp-card"><div class="sp-badge spb-r">Önerilen</div><div class="sp-logo">📊 Garanti Yatırım</div><div class="sp-offer">Temettü hisseleri + kısa vadeli devlet tahvili. Düşük volatilite, düzenli nakit akışı.</div><div class="sp-ret">+%22 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
-        <div class="sp-card"><div class="sp-logo">🥇 Ata Yatırım</div><div class="sp-offer">%60 fiziki altın + %40 yurt dışı ETF. Enflasyon ve kur riskine karşı maksimum koruma.</div><div class="sp-ret">+%31 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
-        <div class="sp-card"><div class="sp-logo">₿ BtcTurk Pro</div><div class="sp-offer">%10 BTC + %10 ETH + %80 stablecoin. Kripto piyasasına kontrollü giriş portföyü.</div><div class="sp-ret">+%45 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
-        <div class="sp-card"><div class="sp-logo">📈 İş Yatırım</div><div class="sp-offer">Teknoloji ağırlıklı BIST hisse portföyü. Yapay zeka destekli hisse seçimi ve aktif yönetim.</div><div class="sp-ret">+%35 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
-        <div class="sp-card"><div class="sp-logo">🌍 Yapı Kredi Yatırım</div><div class="sp-offer">Gelişmekte olan piyasalar ETF + Türkiye Eurobond mix. Çeşitlendirilmiş uluslararası portföy.</div><div class="sp-ret">+%25 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay →</button></div>
+        <div class="sp-card"><div class="sp-badge spb-s">Sponsor</div><div class="sp-logo">AkBank Yatırım</div><div class="sp-offer">%85 BIST Endeks Fonu + %15 Eurobond. Yıllık otomatik rebalancing ile profesyonel portföy yönetimi.</div><div class="sp-ret">+%28 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay</button></div>
+        <div class="sp-card"><div class="sp-badge spb-r">Önerilen</div><div class="sp-logo">Garanti Yatırım</div><div class="sp-offer">Temettü hisseleri + kısa vadeli devlet tahvili. Düşük volatilite, düzenli nakit akışı.</div><div class="sp-ret">+%22 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay</button></div>
+        <div class="sp-card"><div class="sp-logo">Ata Yatırım</div><div class="sp-offer">%60 fiziki altın + %40 yurt dışı ETF. Enflasyon ve kur riskine karşı maksimum koruma.</div><div class="sp-ret">+%31 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay</button></div>
+        <div class="sp-card"><div class="sp-logo">BtcTurk Pro</div><div class="sp-offer">%10 BTC + %10 ETH + %80 stablecoin. Kripto piyasasına kontrollü giriş portföyü.</div><div class="sp-ret">+%45 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay</button></div>
+        <div class="sp-card"><div class="sp-logo">İş Yatırım</div><div class="sp-offer">Teknoloji ağırlıklı BIST hisse portföyü. Yapay zeka destekli hisse seçimi ve aktif yönetim.</div><div class="sp-ret">+%35 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay</button></div>
+        <div class="sp-card"><div class="sp-logo">Yapı Kredi Yatırım</div><div class="sp-offer">Gelişmekte olan piyasalar ETF + Türkiye Eurobond mix. Çeşitlendirilmiş uluslararası portföy.</div><div class="sp-ret">+%25 <span>/yıl tahmini</span></div><button class="btn btn-navy btn-sm">Detay</button></div>
       </div>
-      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:.85rem;line-height:1.6">Sponsor içerikler ticari işbirliği kapsamındadır. Tahmini getiriler geçmiş performansa dayalı olup geleceği garanti etmez. SPK lisanslı danışmana başvurunuz.</p>
+      <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:.65rem;line-height:1.5">Sponsor icerikler ticari isbirligi kapsamindadir. Tahmini getiriler gecmis performansa dayali olup gelecegi garanti etmez. SPK lisansli danismana basvurunuz.</p>
     </div>
 
     <!-- ── PROFILE ── -->
@@ -573,44 +571,44 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
         <div>
           <div class="prof-card">
             <div class="pav-big" id="pav-big">AK</div>
-            <div class="pname" id="p-name">Kullanıcı</div>
+            <div class="pname" id="p-name">Kullanici</div>
             <div class="pemail" id="p-email">email@domain.com</div>
-            <span class="pplan">🆓 Ücretsiz Plan</span>
+            <span class="pplan">Ücretsiz Plan</span>
             <div class="pstats">
               <div class="pst"><div class="n" id="p-calc">0</div><div class="l">Hesaplama</div></div>
               <div class="pst"><div class="n" id="p-sc">0</div><div class="l">Senaryo</div></div>
             </div>
-            <button class="btn btn-gold btn-full" style="margin-bottom:.5rem;font-size:13px" onclick="toast('Premium ödeme sayfası yakında!','warn')">✦ Premium — ₺49/ay</button>
-            <button class="btn btn-out btn-full btn-sm" onclick="logout()">Çıkış Yap</button>
+            <button class="btn btn-gold btn-full" style="margin-bottom:.4rem;font-size:13px" onclick="toast('Premium odeme sayfasi yakinda!','warn')">Premium — ₺49/ay</button>
+            <button class="btn btn-out btn-full btn-sm" onclick="logout()">Cikis Yap</button>
           </div>
           <div class="prof-card" style="text-align:left">
-            <h4 style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:.6rem">Güvenlik</h4>
-            <button class="btn btn-out btn-full btn-sm" style="margin-bottom:.4rem" onclick="toast('Şifre sıfırlama e-postası gönderildi','ok')">🔑 Şifre Değiştir</button>
-            <button class="btn btn-out btn-full btn-sm" onclick="toast('2FA yakında aktif olacak','warn')">🛡️ İki Faktörlü Doğrulama</button>
+            <h4 style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:.5rem">Guvenlik</h4>
+            <button class="btn btn-out btn-full btn-sm" style="margin-bottom:.35rem" onclick="toast('Sifre sifirlama e-postasi gonderildi','ok')">Sifre Degistir</button>
+            <button class="btn btn-out btn-full btn-sm" onclick="toast('2FA yakinda aktif olacak','warn')">Iki Faktorlu Dogrulama</button>
           </div>
         </div>
         <div>
-          <div class="prof-card prof-sec" style="text-align:left;margin-bottom:.85rem">
+          <div class="prof-card prof-sec" style="text-align:left;margin-bottom:.65rem">
             <h4>Profil Bilgileri</h4>
-            <div class="f2" style="margin-bottom:.7rem">
+            <div class="f2" style="margin-bottom:.6rem">
               <div class="fld"><label class="flbl">Ad</label><input type="text" id="pf-fn"></div>
               <div class="fld"><label class="flbl">Soyad</label><input type="text" id="pf-ln"></div>
             </div>
-            <div class="fld" style="margin-bottom:.7rem"><label class="flbl">E-posta</label><input type="email" id="pf-em"></div>
-            <div class="fld" style="margin-bottom:.85rem"><label class="flbl">Telefon (isteğe bağlı)</label><input type="tel" placeholder="+90 5xx xxx xx xx"></div>
+            <div class="fld" style="margin-bottom:.6rem"><label class="flbl">E-posta</label><input type="email" id="pf-em"></div>
+            <div class="fld" style="margin-bottom:.65rem"><label class="flbl">Telefon (istege bagli)</label><input type="tel" placeholder="+90 5xx xxx xx xx"></div>
             <button class="btn btn-navy" onclick="saveProfile()">Kaydet</button>
           </div>
-          <div class="prof-card prof-sec" style="text-align:left;margin-bottom:.85rem">
+          <div class="prof-card prof-sec" style="text-align:left;margin-bottom:.65rem">
             <h4>Bildirim Tercihleri</h4>
-            <div class="cbrow"><input type="checkbox" id="nb-em" checked><label for="nb-em">E-posta bildirimleri (kampanya, yeni özellikler)</label></div>
+            <div class="cbrow"><input type="checkbox" id="nb-em" checked><label for="nb-em">E-posta bildirimleri (kampanya, yeni ozellikler)</label></div>
             <div class="cbrow"><input type="checkbox" id="nb-sms"><label for="nb-sms">SMS bildirimleri</label></div>
             <div class="cbrow"><input type="checkbox" id="nb-wp"><label for="nb-wp">WhatsApp bildirimleri (Premium)</label></div>
-            <button class="btn btn-navy btn-sm" style="margin-top:.4rem" onclick="toast('Bildirim tercihleri kaydedildi','ok')">Kaydet</button>
+            <button class="btn btn-navy btn-sm" style="margin-top:.35rem" onclick="toast('Bildirim tercihleri kaydedildi','ok')">Kaydet</button>
           </div>
           <div class="dzone">
-            <h4>⚠️ Tehlikeli Alan</h4>
-            <p>Hesabınızı silmek tüm verilerinizi kalıcı olarak siler. KVKK kapsamında 30 gün içinde imha edilir.</p>
-            <button class="btn btn-danger btn-sm" onclick="delAcc()">Hesabı Sil</button>
+            <h4>Tehlikeli Alan</h4>
+            <p>Hesabinizi silmek tum verilerinizi kalici olarak siler. KVKK kapsaminda 30 gun icinde imha edilir.</p>
+            <button class="btn btn-danger btn-sm" onclick="delAcc()">Hesabi Sil</button>
           </div>
         </div>
       </div>
@@ -660,10 +658,10 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
       </div>
       <!-- FORGOT -->
       <div id="af-forgot" class="hid">
-        <p style="font-size:13px;color:var(--muted);margin-bottom:.85rem;line-height:1.6">E-postanızı girin, şifre sıfırlama bağlantısı göndereceğiz.</p>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:.7rem;line-height:1.5">E-postanızı girin, şifre sıfırlama bağlantısı göndereceğiz.</p>
         <div class="fld"><label class="flbl">E-posta</label><input type="email" id="fg-em" placeholder="ornek@email.com"></div>
         <button class="btn btn-navy btn-full" onclick="doFgt()">Sıfırlama Linki Gönder</button>
-        <div style="text-align:center;margin-top:.65rem"><a class="lnk" onclick="authTab('login')">← Giriş sayfasına dön</a></div>
+        <div style="text-align:center;margin-top:.5rem"><a class="lnk" onclick="authTab('login')">← Giriş sayfasına dön</a></div>
       </div>
     </div>
   </div>
@@ -671,7 +669,7 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
 
 <!-- KVKK MODAL -->
 <div class="ov hid" id="kvkk-ov">
-  <div class="mbox" style="max-width:500px">
+  <div class="mbox" style="max-width:480px">
     <div class="m-hdr"><div><h2>KVKK Aydınlatma Metni</h2><p>6698 Sayılı Kişisel Verilerin Korunması Kanunu</p></div><button class="m-close" onclick="closeKvkk()">✕</button></div>
     <div class="m-body kvkk-txt">
       <h4>Veri Sorumlusu</h4><p>Nekazandi Teknoloji A.Ş. — kvkk@nekazandi.com</p>
@@ -681,7 +679,7 @@ footer{background:var(--navy);padding:2.5rem 1.25rem 1.25rem;color:rgba(255,255,
       <h4>Saklama Süresi</h4><p>Hesap silme talebinden itibaren 30 gün içinde tüm kişisel verileriniz kalıcı olarak imha edilir.</p>
       <h4>Haklarınız (KVKK Madde 11)</h4><p>Kişisel verilerinize erişim, düzeltme, silme, işlemeye itiraz, işlemenin kısıtlanması ve veri taşınabilirliği haklarına sahipsiniz. Başvuru: kvkk@nekazandi.com — 30 gün içinde yanıtlanır.</p>
       <h4>Çerezler</h4><p>Platform yalnızca zorunlu oturum çerezleri kullanır. Analitik çerezler için ayrıca onayınız alınır.</p>
-      <button class="btn btn-navy btn-full" style="margin-top:1rem" onclick="closeKvkk()">Okudum, Kapat</button>
+      <button class="btn btn-navy btn-full" style="margin-top:.75rem" onclick="closeKvkk()">Okudum, Kapat</button>
     </div>
   </div>
 </div>
