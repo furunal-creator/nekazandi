@@ -50,6 +50,10 @@ input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,9
 input::placeholder{color:#94a3b8}
 .flbl{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
 
+
+.cur-btn{padding:3px 10px;font-size:10px;font-weight:600;border:1px solid var(--border);border-radius:4px;background:var(--white);color:var(--muted);cursor:pointer;transition:.15s}
+.cur-btn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.cur-btn:hover:not(.on){border-color:var(--navy);color:var(--navy)}
 /* ── NAV ── */
 #nav{position:fixed;top:0;left:0;right:0;z-index:80;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.06)}
 .nav-in{max-width:1120px;margin:0 auto;padding:0 1.25rem;height:52px;display:flex;align-items:center;justify-content:space-between}
@@ -1332,6 +1336,23 @@ function generateCommentary(scResults) {
 }
 const SC_COLORS = ['#e74c3c','#2980b9','#27ae60','#f39c12','#8e44ad','#16a085','#2c3e50','#d35400'];
 
+
+// ── FORMAT HELPERS ──
+function fmtMoney(v) {
+  const usdRate = (liveRates && liveRates['USD/TRY']) || 38.5;
+  if (displayCurrency === 'USD') {
+    const usdVal = v / usdRate;
+    return '$' + Math.round(usdVal).toLocaleString('en-US');
+  }
+  return '₺' + Math.round(v).toLocaleString('tr-TR');
+}
+function fmtMoneyDetail(v) {
+  const usdRate = (liveRates && liveRates['USD/TRY']) || 38.5;
+  if (displayCurrency === 'USD') {
+    return '$' + (v/usdRate).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+  return '₺' + Math.round(v).toLocaleString('tr-TR');
+}
 let curUser=null, scenarios=[], calcCnt=0, myChart=null, curCat='all';
 
 // ── CURRENCY MAPPING ──
@@ -1597,10 +1618,90 @@ function renderSelList(scId) {
 }
 
 // ── CALCULATE ──
-function calculate() {
+
+// ── LIVE PRICES ──
+let liveRates = null;
+let liveRatesTime = null;
+
+async function fetchLiveRates() {
+  try {
+    const [fxRes, cryptoRes] = await Promise.allSettled([
+      fetch('https://open.er-api.com/v6/latest/USD').then(r=>r.json()),
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin,ripple,avalanche-2,polkadot&vs_currencies=try,usd&include_24hr_change=true').then(r=>r.json())
+    ]);
+    const rates = {};
+    // FX rates
+    if (fxRes.status==='fulfilled' && fxRes.value.rates) {
+      const fx = fxRes.value.rates;
+      rates['USD/TRY'] = fx.TRY || 38.5;
+      rates['EUR/TRY'] = (fx.TRY||38.5) / (fx.EUR||0.92);
+      rates['GBP/TRY'] = (fx.TRY||38.5) / (fx.GBP||0.79);
+      rates['CHF/TRY'] = (fx.TRY||38.5) / (fx.CHF||0.88);
+      rates['XAU/USD'] = 3050; // Gold approximate
+    }
+    // Crypto
+    if (cryptoRes.status==='fulfilled') {
+      const c = cryptoRes.value;
+      if(c.bitcoin) rates['BTC/TRY'] = c.bitcoin.try||0;
+      if(c.ethereum) rates['ETH/TRY'] = c.ethereum.try||0;
+      if(c.solana) rates['SOL/TRY'] = c.solana.try||0;
+      if(c.binancecoin) rates['BNB/TRY'] = c.binancecoin.try||0;
+      if(c.ripple) rates['XRP/TRY'] = c.ripple.try||0;
+      if(c['avalanche-2']) rates['AVAX/TRY'] = c['avalanche-2'].try||0;
+      if(c.polkadot) rates['DOT/TRY'] = c.polkadot.try||0;
+    }
+    liveRates = rates;
+    liveRatesTime = new Date();
+    return rates;
+  } catch(e) { console.warn('Canlı veri alınamadı:', e); return null; }
+}
+
+// Show live rate badge
+function showLiveStatus() {
+  const el = document.getElementById('live-badge');
+  if (!el) return;
+  if (liveRates) {
+    const t = liveRatesTime.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+    el.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--green);font-weight:600"><span style="width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block"></span>Canlı veri · '+t+'</span>';
+    // Show key rates
+    const usd = liveRates['USD/TRY'];
+    if(usd) el.innerHTML += '<span style="font-size:10px;color:var(--muted);margin-left:8px">USD/TRY: ₺'+usd.toFixed(2)+'</span>';
+  } else {
+    el.innerHTML = '<span style="font-size:10px;color:var(--muted)">Tarihsel veri kullanılıyor</span>';
+  }
+}
+
+// ── CURRENCY DISPLAY ──
+let displayCurrency = 'TRY';
+
+function setCurrency(c) {
+  displayCurrency = c;
+  document.getElementById('cur-try').classList.toggle('on', c==='TRY');
+  document.getElementById('cur-usd').classList.toggle('on', c==='USD');
+  // Re-render results if available
+  if (lastResults) renderResults(lastResults.map(r=>r.sc));
+}
+
+async function doFetchLive() {
+  const btn = document.getElementById('fetch-live-btn');
+  btn.textContent = '↻ Yükleniyor...';
+  btn.disabled = true;
+  await fetchLiveRates();
+  btn.textContent = '↻ Canlı Veri Çek';
+  btn.disabled = false;
+  showLiveStatus();
+  toast('Canlı piyasa verileri güncellendi','ok');
+}
+
+async function calculate() {
   if (!curUser) { openAuth('register'); return; }
   const valid = scenarios.filter(sc=>sc.assets.length>0);
   if (!valid.length) { toast('En az bir senaryoya varlık ekleyin','warn'); return; }
+  // Fetch live rates if not cached or older than 5 min
+  if (!liveRates || !liveRatesTime || (Date.now()-liveRatesTime.getTime())>300000) {
+    await fetchLiveRates();
+    showLiveStatus();
+  }
   for (const sc of valid) {
     if (new Date(sc.end) <= new Date(sc.start)) { toast(`"${sc.label}" senaryosunda bitiş tarihi hatalı`,'err'); return; }
   }
@@ -1643,16 +1744,16 @@ function renderResults(scs) {
   const df = d => new Date(d).toLocaleDateString('tr-TR',{year:'numeric',month:'short'});
 
   let html = `<div class="sum-bar ani">
-    <div class="sb-item"><div class="lbl">Toplam Başlangıç</div><div class="val">₺${Math.round(grandInit).toLocaleString('tr-TR')}</div></div>
-    <div class="sb-item"><div class="lbl">Toplam Bugünkü Değer</div><div class="val">₺${Math.round(grandFinal).toLocaleString('tr-TR')}</div></div>
+    <div class="sb-item"><div class="lbl">Toplam Başlangıç</div><div class="val">${fmtMoney(grandInit)}</div></div>
+    <div class="sb-item"><div class="lbl">Toplam Bugünkü Değer</div><div class="val">${fmtMoney(grandFinal)}</div></div>
     <div class="sb-item"><div class="lbl">Toplam Getiri</div><div class="val ${grandRet>=0?'pos':'neg'}">${grandRet>=0?'▲':'▼'} %${Math.abs(grandRet).toFixed(1)}</div></div>
-    <div class="sb-item"><div class="lbl">Toplam Kazanç</div><div class="val sm ${grandRet>=0?'pos':'neg'}">₺${Math.round(Math.abs(grandFinal-grandInit)).toLocaleString('tr-TR')}</div></div>
+    <div class="sb-item"><div class="lbl">Toplam Kazanç</div><div class="val sm ${grandRet>=0?'pos':'neg'}">${fmtMoney(Math.abs(grandFinal-grandInit))}</div></div>
   </div>`;
 
   // Calculation assumption note + FX note
   html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:6px 10px;font-size:10px;color:var(--muted);line-height:1.5;margin-top:.35rem" class="ani">
     Hesaplama varsayımı: Başlangıç tarihindeki ortalama fiyattan alım, bitiş tarihindeki güncel fiyattan satım.<br>
-    <strong>Kur etkisi dahil edilmiştir.</strong> ABD varlıkları için USD/TRY kuru uygulanmıştır.
+    <strong>Kur etkisi dahil edilmiştir. <span id='live-rate-note'></span></strong> ABD varlıkları için USD/TRY kuru uygulanmıştır.
   </div>`;
 
   // Scenario cards
@@ -1665,8 +1766,8 @@ function renderResults(scs) {
         <div class="scr-title">${sr.sc.label}</div>
         <div class="scr-period">${df(sr.sc.start)} → ${df(sr.sc.end)} (${yrs} yıl)</div>
         <div>
-          <div class="scr-total">₺${Math.round(sr.totFinal).toLocaleString('tr-TR')}</div>
-          <div class="scr-gain ${sr.ret>=0?'pos':'neg'}">${sr.ret>=0?'▲':'▼'} %${Math.abs(sr.ret).toFixed(1)} &nbsp;|&nbsp; Başlangıç: ₺${Math.round(sr.totInit).toLocaleString('tr-TR')}</div>
+          <div class="scr-total">${fmtMoney(sr.totFinal)}</div>
+          <div class="scr-gain ${sr.ret>=0?'pos':'neg'}">${sr.ret>=0?'▲':'▼'} %${Math.abs(sr.ret).toFixed(1)} &nbsp;|&nbsp; Başlangıç: ${fmtMoney(sr.totInit)}</div>
         </div>
       </div>
       <div class="scr-body">
@@ -1682,7 +1783,7 @@ function renderResults(scs) {
   html += `<div class="chart-card ani d2">
     <h4>Karşılaştırma Tablosu — Varlık Bazlı Getiriler</h4>
     <div style="overflow-x:auto"><table class="comp-table">
-      <thead><tr><th>#</th><th>Senaryo</th><th>Varlık</th><th>Kur</th><th>Kaynak</th><th>Başlangıç</th><th>Bugünkü Değer</th><th>Getiri</th></tr></thead>
+      <thead><tr><th>#</th><th>Senaryo</th><th>Varlık</th><th>Kur</th><th>Kaynak</th><th>Başlangıç</th><th>Bugünkü Değer</th><th>Getiri</th><th>Kur Etkisi</th></tr></thead>
       <tbody>`;
 
   // flatten & sort by return
@@ -1698,9 +1799,10 @@ function renderResults(scs) {
       <td><span style="color:${a.color};font-weight:700">${a.tk}</span> <span style="color:var(--muted);font-size:11px">${a.name}</span></td>
       <td style="font-size:10px;${kurStyle}">${kurLabel}</td>
       <td style="color:var(--muted);font-size:11px">${a.src}</td>
-      <td>₺${Math.round(a.amount).toLocaleString('tr-TR')}</td>
-      <td><strong>₺${Math.round(a.fin).toLocaleString('tr-TR')}</strong></td>
+      <td>${fmtMoney(a.amount)}</td>
+      <td><strong>${fmtMoney(a.fin)}</strong></td>
       <td><span style="font-weight:700;color:${a.ret>=0?'var(--green)':'var(--red)'}">${a.nodata?(a.nodataReason||'Veri yok'):(a.ret>=0?'▲':'▼')+' %'+Math.abs(a.ret).toFixed(1)}</span></td>
+      <td style="font-size:10px">${a.currency==='USD'?'<span style="color:var(--blue)">Kur dahil</span>':'<span style="color:var(--muted)">—</span>'}</td>
     </tr>`;
   });
 
@@ -1745,6 +1847,11 @@ function renderResults(scs) {
   </p>`;
 
   document.getElementById('res-area').innerHTML = html;
+  // Show live rate in note
+  const lrn = document.getElementById('live-rate-note');
+  if(lrn && liveRates && liveRates['USD/TRY']) {
+    lrn.innerHTML = 'Güncel USD/TRY: <strong>₺'+liveRates['USD/TRY'].toFixed(2)+'</strong> (canlı)';
+  }
 
   if (myChart) { myChart.destroy(); myChart = null; }
   const ctx = document.getElementById('main-chart');
