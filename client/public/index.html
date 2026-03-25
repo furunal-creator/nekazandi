@@ -523,7 +523,13 @@ footer{background:var(--navy);padding:2rem 1.25rem 1rem;color:rgba(255,255,255,.
 
         <!-- LEFT: form -->
         <div class="form-panel">
-          <div class="fp-title">Portföy Hesaplayıcı <span>GERÇEK VERİ</span></div>
+          <div class="fp-title">Portföy Hesaplayıcı <span>GERÇEK VERİ</span> <span id="live-badge"></span></div>
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:.75rem">
+            <span style="font-size:10px;color:var(--muted);font-weight:600">GÖSTER:</span>
+            <button class="cur-btn on" id="cur-try" onclick="setCurrency('TRY')">₺ TRY</button>
+            <button class="cur-btn" id="cur-usd" onclick="setCurrency('USD')">$ USD</button>
+            <button id="fetch-live-btn" onclick="doFetchLive()" style="margin-left:auto;font-size:10px;padding:4px 10px;background:var(--blue);color:#fff;border:none;border-radius:4px;cursor:pointer">↻ Canlı Veri Çek</button>
+          </div>
 
           <div id="scenarios-list"></div>
 
