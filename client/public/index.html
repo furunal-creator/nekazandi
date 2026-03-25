@@ -573,7 +573,7 @@ footer{background:var(--navy);padding:2rem 1.25rem 1rem;color:rgba(255,255,255,.
             <div class="pav-big" id="pav-big">AK</div>
             <div class="pname" id="p-name">Kullanici</div>
             <div class="pemail" id="p-email">email@domain.com</div>
-            <span class="pplan">Ücretsiz Plan</span>
+            <span class="pplan" id="p-plan">Ücretsiz Plan</span>
             <div class="pstats">
               <div class="pst"><div class="n" id="p-calc">0</div><div class="l">Hesaplama</div></div>
               <div class="pst"><div class="n" id="p-sc">0</div><div class="l">Senaryo</div></div>
@@ -1040,6 +1040,8 @@ let lastResults = null;
 
 function generateCommentary(scResults) {
   if (!scResults || !scResults.length) return null;
+  const userName = curUser ? curUser.name.split(' ')[0] : 'Yatırımcı';
+  const fullName = curUser ? curUser.name : 'Yatırımcı';
 
   // Analyze portfolio composition
   const allAssets = [];
@@ -1057,9 +1059,18 @@ function generateCommentary(scResults) {
   const assetCount = allAssets.length;
   const isDiversified = uniqueCats.length >= 3 && assetCount >= 5;
 
-  // Count by category
+  // Count by category & percentages
   const catCounts = {};
-  allAssets.forEach(a => { catCounts[a.cat] = (catCounts[a.cat] || 0) + 1; });
+  const catAmounts = {};
+  allAssets.forEach(a => {
+    catCounts[a.cat] = (catCounts[a.cat] || 0) + 1;
+    catAmounts[a.cat] = (catAmounts[a.cat] || 0) + a.amount;
+  });
+  const catPct = {};
+  Object.keys(catAmounts).forEach(c => { catPct[c] = totalInit > 0 ? ((catAmounts[c] / totalInit) * 100).toFixed(0) : 0; });
+
+  const catNames = {bist:'BIST',ipo:'Halka Arz',bond:'Tahvil',tefas:'TEFAS',us:'ABD Hisse',metal:'Kıymetli Maden',crypto:'Kripto',fx:'Döviz',other:'Diğer'};
+  const catBreakdown = Object.keys(catPct).map(c => `${catNames[c]||c} %${catPct[c]}`).join(', ');
 
   const hasCrypto = catCounts['crypto'] > 0;
   const hasBist = catCounts['bist'] > 0;
@@ -1071,173 +1082,238 @@ function generateCommentary(scResults) {
 
   const topAsset = allAssets.length ? allAssets.reduce((best, a) => a.ret > best.ret ? a : best, allAssets[0]) : null;
   const worstAsset = allAssets.length ? allAssets.reduce((worst, a) => a.ret < worst.ret ? a : worst, allAssets[0]) : null;
+  const top3 = [...allAssets].sort((a,b)=>b.ret-a.ret).slice(0,3);
+  const tickers = allAssets.map(a=>a.tk).join(', ');
 
-  // Get TUFE comparison
-  let tufeRet = null;
+  // Bond + low risk percentage
+  const lowRiskAmt = (catAmounts['bond']||0)+(catAmounts['other']||0);
+  const lowRiskPct = totalInit > 0 ? ((lowRiskAmt/totalInit)*100).toFixed(0) : 0;
+  const highRiskAmt = (catAmounts['crypto']||0)+(catAmounts['us']||0);
+  const highRiskPct = totalInit > 0 ? ((highRiskAmt/totalInit)*100).toFixed(0) : 0;
+
+  // Get TUFE & USD comparisons
+  let tufeRet = null, usdRet = null;
   if (scResults[0]) {
     const mult = calcReturn('tufe', scResults[0].sc.start, scResults[0].sc.end);
     if (mult) tufeRet = (mult - 1) * 100;
+    const fx0 = getPrice('usd', scResults[0].sc.start);
+    const fx1 = getPrice('usd', scResults[0].sc.end);
+    if (fx0 && fx1) usdRet = ((fx1/fx0)-1)*100;
   }
 
   const retStr = (r) => r >= 0 ? `+%${Math.abs(r).toFixed(0)}` : `-%${Math.abs(r).toFixed(0)}`;
   const period = scResults[0] ? `${new Date(scResults[0].sc.start).getFullYear()}–${new Date(scResults[0].sc.end).getFullYear()}` : '';
+  const years = scResults[0] ? ((new Date(scResults[0].sc.end)-new Date(scResults[0].sc.start))/31557600000).toFixed(1) : '?';
+  const cagr = years > 0 ? ((Math.pow(totalFinal/totalInit, 1/years)-1)*100).toFixed(1) : '?';
 
   return ECONOMISTS.map(econ => {
     let comment = '';
     let verdict = 'neutral';
 
     switch(econ.name) {
-      case 'John Maynard Keynes':
+      case 'John Maynard Keynes': {
+        const antiCycl = hasBond || hasMetal;
         if (overallRet > 50) {
           verdict = 'bull';
-          comment = `${period} döneminde ${retStr(overallRet)} getiri, toplam talep perspektifinden güçlü bir performans. `;
-          comment += isDiversified ? 'Çeşitlendirilmiş yapı kriz dönemlerine karşı tampon oluşturmuş.' : 'Ancak konsantrasyon riski yüksek — anti-çevrimsel varlıklar ekleyin.';
-          if (hasBond) comment += ' Tahvil pozisyonu likidite güvencesi sağlıyor.';
+          comment = `Sayın ${fullName}, ${period} döneminde portföyünüz ${retStr(overallRet)} getiri sağlamış — varlıklarınız (${tickers}) toplam talep perspektifinden güçlü bir performans göstermiş. `;
+          comment += `Portföy dağılımınız: ${catBreakdown}. `;
+          comment += antiCycl ? `Tahvil/maden pozisyonları anti-çevrimsel tampon oluşturmuş — ${years} yıllık dönemde kriz geçirseniz bile savunma hattınız vardı.` : `Ancak anti-çevrimsel varlık eksik — tahvil veya altın ekleyerek kriz dönemlerine karşı tampon oluşturun.`;
+          comment += ` En iyi varlığınız ${topAsset.tk} (${retStr(topAsset.ret)}), en zayıf ${worstAsset.tk} (${retStr(worstAsset.ret)}).`;
         } else if (overallRet > 0) {
           verdict = 'neutral';
-          comment = `Portföy pozitif getiri sağlamış (${retStr(overallRet)}), ancak ${period} dönemi için daha agresif bir maliye politikası gerekebilirdi. `;
-          comment += hasBist ? 'BIST pozisyonları iç talebi yansıtıyor.' : 'Yerel piyasa eksikliği dikkat çekici.';
+          comment = `Sayın ${fullName}, portföyünüz ${retStr(overallRet)} pozitif getiri sağlamış ancak ${period} döneminde ılımlı kalmış. `;
+          comment += `Varlıklarınız: ${tickers}. Dağılım: ${catBreakdown}. `;
+          comment += hasBist ? `BIST pozisyonları (%${catPct['bist']||0}) iç talebi yansıtıyor, ancak döneme göre daha agresif maliye politikası odaklı sektörler gerekebilirdi.` : 'Yerel piyasa eksikliği dikkat çekici — Türkiye iç talebinden faydalanmıyorsunuz.';
         } else {
           verdict = 'bear';
-          comment = `${retStr(overallRet)} getiri, efektif talep yetersizliğini yansıtıyor. Kamu harcamalarının arttığı dönemlerde pozisyon alınmalıydı.`;
+          comment = `Sayın ${fullName}, ${retStr(overallRet)} getiri efektif talep yetersizliğini yansıtıyor. ${period} döneminde kamu harcamalarının arttığı sektörlere (altyapı, savunma) pozisyon alınmalıydı. Varlıklarınız (${tickers}) bu dalganın dışında kalmış.`;
         }
         break;
+      }
 
-      case 'Benjamin Graham':
-        if (hasCrypto) {
+      case 'Benjamin Graham': {
+        const safetyMargin = lowRiskPct;
+        const specPct = highRiskPct;
+        if (hasCrypto && Number(specPct) > 30) {
           verdict = 'bear';
-          comment = `Kripto varlıklar portföyde yer alıyor — güvenlik marjı sıfır. Spekülasyon yatırımın düşmanıdır. `;
-          comment += topAsset ? `${topAsset.tk} ${retStr(topAsset.ret)} getirmiş olabilir ama içsel değer hesabı yapılmadan girilen pozisyon tehlikelidir.` : '';
-        } else if (isDiversified && hasBond) {
+          comment = `Sayın ${fullName}, portföyünüzde %${specPct} yüksek riskli (kripto/ABD) varlık var — güvenlik marjı tehlikeli şekilde düşük. `;
+          comment += `Düşük riskli varlık oranı yalnızca %${safetyMargin}. Varlıklarınız: ${tickers}. `;
+          comment += topAsset ? `${topAsset.tk} ${retStr(topAsset.ret)} getirmiş olabilir ama içsel değer hesabı yapılmadan girilen her pozisyon spekülasyondur, yatırım değil.` : '';
+          comment += ` Bay Piyasa'nın çılgınlıklarına kapılmayın.`;
+        } else if (isDiversified && Number(safetyMargin) >= 20) {
           verdict = 'bull';
-          comment = `Çeşitlendirilmiş portföy ve tahvil pozisyonu — bu Bay Piyasa'nın çılgınlıklarına karşı iyi bir savunma. `;
-          comment += `${retStr(overallRet)} toplam getiri, sabırlı yatırımcıyı ödüllendirmiş.`;
+          comment = `Sayın ${fullName}, portföyünüzde %${safetyMargin} düşük riskli ve %${specPct} yüksek riskli varlık var — güvenlik marjı makul. `;
+          comment += `${assetCount} varlıkla ${retStr(overallRet)} toplam getiri, sabırlı yatırımcıyı ödüllendirmiş. Portföy: ${catBreakdown}. `;
+          comment += `En değerli konumunuz ${topAsset.tk} (${retStr(topAsset.ret)}).`;
         } else {
           verdict = 'neutral';
-          comment = `Ödediğiniz fiyat ne aldığınızdır, elde ettiğiniz değer ise. ${assetCount} varlıkla ${retStr(overallRet)} getiri — `;
-          comment += isDiversified ? 'çeşitlendirme makul.' : 'daha fazla çeşitlendirme güvenlik marjını artırır.';
+          comment = `Sayın ${fullName}, ödediğiniz fiyat ne aldığınızdır. ${assetCount} varlıkla (${tickers}) ${retStr(overallRet)} getiri elde ettiniz. `;
+          comment += `Güvenlik marjı: düşük risk %${safetyMargin}, yüksek risk %${specPct}. `;
+          comment += isDiversified ? 'Çeşitlendirme makul ama tahvil ağırlığını artırarak güvenliği yükseltin.' : 'Daha fazla çeşitlendirme güvenlik marjını artırır — en az 5+ varlık, 3+ kategori hedefleyin.';
         }
         break;
+      }
 
-      case 'Adam Smith':
-        if (isDiversified) {
-          verdict = 'bull';
-          comment = `Görünmez el çeşitlendirilmiş portföyü ödüllendirmiş. ${uniqueCats.length} farklı kategori, iş bölümü ilkesinin portföye tatbiki. `;
-          comment += `Serbest piyasa mekanizması ${retStr(overallRet)} getiri sağlamış.`;
-        } else {
-          verdict = 'neutral';
-          comment = `Serbest ticaret ve çeşitlendirme servetin anahtarıdır. ${assetCount} varlık yeterli iş bölümünü yansıtmıyor olabilir. `;
-          comment += hasUS ? 'Uluslararası pozisyon serbest ticareti destekliyor.' : 'Uluslararası çeşitlendirme eksik.';
-        }
-        break;
-
-      case 'Milton Friedman':
+      case 'Milton Friedman': {
         if (tufeRet !== null) {
           const realRet = overallRet - tufeRet;
+          verdict = realRet > 0 ? 'bull' : 'bear';
+          comment = `Sayın ${fullName}, ${period} döneminde TÜFE ${retStr(tufeRet)} enflasyon gösterirken portföyünüz ${retStr(overallRet)} nominal getiri sağlamış — reel getiri ${retStr(realRet)}. `;
+          comment += `Para arzı genişlemesi Türkiye'de ${years} yılda fiyatları ${retStr(tufeRet)} artırdı. `;
           if (realRet > 0) {
-            verdict = 'bull';
-            comment = `Enflasyon ${retStr(tufeRet)} iken portföy ${retStr(overallRet)} getirmiş — reel getiri pozitif (${retStr(realRet)}). Para arzı genişlemesine rağmen satın alma gücü korunmuş.`;
+            comment += `Varlıklarınız (${tickers}) enflasyonu yenmiş — parasal genişlemeye rağmen satın alma gücünüz korunmuş. `;
+            comment += usdRet !== null ? `Aynı dönemde USD/TRY ${retStr(usdRet)} değişti.` : '';
           } else {
-            verdict = 'bear';
-            comment = `Nominal ${retStr(overallRet)} aldatıcı! TÜFE ${retStr(tufeRet)} ile reel getiri ${retStr(realRet)}. Enflasyon her zaman ve her yerde parasal bir olgudur — portföyünüz bunu yenmeyi başaramamış.`;
+            comment += `Nominal kazanç aldatıcı — enflasyon portföyünüzden hızlı koşmuş. Enflasyon her zaman ve her yerde parasal bir olgudur. `;
+            comment += usdRet !== null ? `USD/TRY ${retStr(usdRet)} değişti, dolar bazlı varlıklar koruyucu olabilirdi.` : '';
           }
         } else {
           verdict = 'neutral';
-          comment = `${retStr(overallRet)} nominal getiri — ancak reel değerlendirme için TÜFE ile karşılaştırmanız şart. Enflasyonu yenen portföy gerçek servet yaratır.`;
+          comment = `Sayın ${fullName}, ${retStr(overallRet)} nominal getiri görüyorum ancak TÜFE karşılaştırması olmadan reel değerlendirme yapılamaz. Enflasyonu yenen portföy gerçek servet yaratır.`;
         }
         break;
+      }
 
-      case 'Joseph Schumpeter':
-        if (hasUS || hasCrypto) {
+      case 'Joseph Schumpeter': {
+        const innovAssets = allAssets.filter(a => a.cat==='us'||a.cat==='crypto');
+        const innovPct = totalInit > 0 ? ((innovAssets.reduce((s,a)=>s+a.amount,0)/totalInit)*100).toFixed(0) : 0;
+        const innovTickers = innovAssets.map(a=>a.tk).join(', ');
+        if (innovAssets.length > 0) {
           verdict = 'bull';
-          comment = `Yaratıcı yıkım portföyünüzde temsil ediliyor! `;
-          if (hasUS) comment += `ABD teknoloji hisseleri inovasyon dalgasını yakalamış. `;
+          comment = `Sayın ${fullName}, yaratıcı yıkım portföyünüzde %${innovPct} ile temsil ediliyor! `;
+          comment += `İnovasyon varlıklarınız: ${innovTickers}. `;
+          if (hasUS) comment += `ABD teknoloji hisseleri (${allAssets.filter(a=>a.cat==='us').map(a=>`${a.tk}: ${retStr(a.ret)}`).join(', ')}) dijital dönüşüm dalgasını yakalamış. `;
           if (hasCrypto) comment += `Kripto varlıklar finans sisteminin yaratıcı yıkımını yansıtıyor. `;
-          comment += topAsset ? `${topAsset.tk} (${retStr(topAsset.ret)}) girişimci ruhun ödülü.` : '';
+          comment += `Portföyünüzde inovasyon çağının ruhunu görüyorum — girişimci ruh ödüllendirilmiş.`;
         } else {
           verdict = 'neutral';
-          comment = `Portföyde inovasyon eksikliği var. Yaratıcı yıkım dönemlerinde teknoloji ve yenilikçi sektörlere yatırım, ekonominin motoru olan girişimciliği destekler. ${retStr(overallRet)} getiri geleneksel yaklaşımı yansıtıyor.`;
+          comment = `Sayın ${fullName}, portföyünüzde (${tickers}) inovasyon maruziyeti %0 — yaratıcı yıkım dönemlerinde teknoloji ve yenilikçi sektörlere yatırım eksik. ${retStr(overallRet)} getiri geleneksel yaklaşımı yansıtıyor. ABD teknoloji, kripto veya BIST teknoloji hisseleriyle portföye inovasyon boyutu ekleyin.`;
         }
         break;
+      }
 
-      case 'David Ricardo':
-        if (hasFx || hasUS) {
+      case 'Adam Smith': {
+        const geoDiv = (hasBist?1:0)+(hasUS?1:0)+(hasFx?1:0);
+        const sectorDiv = uniqueCats.length;
+        if (isDiversified && geoDiv >= 2) {
           verdict = 'bull';
-          comment = `Karşılaştırmalı üstünlük ilkesi portföye tatbik edilmiş. `;
-          if (hasFx) comment += `Döviz pozisyonu uluslararası ticaret dengesini yansıtıyor. `;
-          if (hasUS) comment += `ABD piyasasında karşılaştırmalı üstünlüğü olan sektörlere yatırım akıllıca. `;
-          comment += `Toplam ${retStr(overallRet)} getiri.`;
+          comment = `Sayın ${fullName}, görünmez el çeşitlendirilmiş portföyünüzü ödüllendirmiş! ${sectorDiv} sektör, ${geoDiv} coğrafya ile iş bölümü ilkesinin portföye tatbiki. `;
+          comment += `Dağılım: ${catBreakdown}. Varlıklarınız (${tickers}) serbest piyasa mekanizmasıyla ${retStr(overallRet)} getiri sağlamış. `;
+          comment += `${period} döneminde Türkiye ve küresel piyasaların avantajlarından yararlanmışsınız.`;
         } else {
           verdict = 'neutral';
-          comment = `Karşılaştırmalı üstünlük yalnızca uluslar için değil, portföyler için de geçerlidir. Tek piyasa konsantrasyonu rant teorisini tehdit ediyor — çeşitlendirmeyi ileri götürün. ${retStr(overallRet)} getiri sınırlı.`;
+          comment = `Sayın ${fullName}, serbest ticaret ve çeşitlendirme servetin anahtarıdır. ${assetCount} varlık ve ${sectorDiv} sektörle portföyünüz sınırlı kaldı. `;
+          comment += `Dağılım: ${catBreakdown}. `;
+          comment += hasUS ? `Uluslararası pozisyon var ama coğrafi çeşitlendirmeyi genişletin.` : `Uluslararası çeşitlendirme tamamen eksik — ABD, Avrupa veya gelişmekte olan piyasalara açılın.`;
+          comment += ` Toplam ${retStr(overallRet)} getiri.`;
         }
         break;
+      }
 
-      case 'John D. Rockefeller':
+      case 'David Ricardo': {
+        const intlPct = totalInit > 0 ? (((catAmounts['us']||0)+(catAmounts['fx']||0))/totalInit*100).toFixed(0) : 0;
+        const domesticPct = totalInit > 0 ? (((catAmounts['bist']||0)+(catAmounts['tefas']||0)+(catAmounts['ipo']||0))/totalInit*100).toFixed(0) : 0;
+        if (Number(intlPct) > 30 && Number(domesticPct) > 30) {
+          verdict = 'bull';
+          comment = `Sayın ${fullName}, karşılaştırmalı üstünlük ilkesini portföye mükemmel uygulamışsınız! %${domesticPct} yerel (Türkiye'nin güçlü yanı: imalat, bankacılık), %${intlPct} uluslararası çeşitlendirme. `;
+          comment += `Varlıklarınız: ${tickers}. ${period} döneminde her iki coğrafyanın üstünlüklerinden yararlanmışsınız — toplam getiri ${retStr(overallRet)}.`;
+        } else if (Number(intlPct) > 0) {
+          verdict = 'neutral';
+          comment = `Sayın ${fullName}, yerel varlık oranı %${domesticPct}, uluslararası %${intlPct}. Karşılaştırmalı üstünlük daha dengeli bir dağılım öngörür. `;
+          comment += `Varlıklar: ${tickers}. Türkiye'nin imalat ve turizm güçleri ile ABD'nin teknoloji üstünlüğünü harmanlayın. Toplam ${retStr(overallRet)} getiri.`;
+        } else {
+          verdict = 'bear';
+          comment = `Sayın ${fullName}, portföyünüzde uluslararası çeşitlendirme yok (%0). Karşılaştırmalı üstünlük yalnızca uluslar için değil portföyler için de geçerli. Tek piyasa konsantrasyonu risk artırır. Dağılım: ${catBreakdown}. ${retStr(overallRet)} getiri.`;
+        }
+        break;
+      }
+
+      case 'John D. Rockefeller': {
+        const futureVal = totalFinal * Math.pow(totalFinal/totalInit, 10/Math.max(Number(years),1));
+        const futureValStr = futureVal >= 1e6 ? (futureVal/1e6).toFixed(1)+'M' : Math.round(futureVal).toLocaleString('tr-TR');
         if (overallRet > 100) {
           verdict = 'bull';
-          comment = `Sabır ve bileşik getiri! ${retStr(overallRet)} getiri, servet yönetiminin özünü gözler önüne seriyor. `;
-          comment += topAsset ? `${topAsset.tk} (${retStr(topAsset.ret)}) — fırsatlar sabırla bekleyenlere gelir.` : '';
-          comment += ' Serveti yönetmesini bilen için her kriz bir fırsattır.';
+          comment = `Sayın ${fullName}, sabır ve bileşik getirinin gücü! ${period} döneminde ${retStr(overallRet)} getiri, yıllık bileşik oran %${cagr}. `;
+          comment += `En iyi varlığınız ${topAsset.tk} (${retStr(topAsset.ret)}). Varlıklar: ${tickers}. `;
+          comment += `Aynı performans 10 yıl daha devam ederse portföyünüz ₺${futureValStr} değerine ulaşabilir. Serveti yönetmesini bilen için her kriz bir fırsattır.`;
         } else if (overallRet > 0) {
           verdict = 'neutral';
-          comment = `Pozitif getiri (${retStr(overallRet)}) güzel, ancak bileşik getirinin gerçek gücü uzun vadede ortaya çıkar. Sabırla tutmaya devam edin.`;
+          comment = `Sayın ${fullName}, ${retStr(overallRet)} pozitif getiri güzel (yıllık %${cagr}), ancak bileşik getirinin gerçek gücü uzun vadede ortaya çıkar. `;
+          comment += `Şu anki ₺${Math.round(totalInit).toLocaleString('tr-TR')} → ₺${Math.round(totalFinal).toLocaleString('tr-TR')}. 10 yıl daha aynı hızla devam ederse: ~₺${futureValStr}. `;
+          comment += `Sabırla tutun — ${tickers} varlıklarınız bileşik getiriden yararlanacak.`;
         } else {
           verdict = 'bear';
-          comment = `${retStr(overallRet)} — zaman ufkunuz yeterli olmamış olabilir. Bileşik getirinin mucizesini görmek için sabır şarttır.`;
+          comment = `Sayın ${fullName}, ${retStr(overallRet)} getiri zaman ufkunuzun yeterli olmadığını gösteriyor. Bileşik getirinin mucizesi için minimum 5–10 yıl gerekir. ${tickers} varlıklarınızla sabrınızı koruyun.`;
         }
         break;
+      }
 
-      case 'J.P. Morgan':
-        if (hasCrypto) {
+      case 'J.P. Morgan': {
+        const maxSinglePct = totalInit > 0 ? Math.max(...allAssets.map(a=>(a.amount/totalInit)*100)) : 0;
+        const maxSingleAsset = allAssets.reduce((mx,a)=> a.amount > mx.amount ? a : mx, allAssets[0]);
+        if (hasCrypto && Number(highRiskPct) > 40) {
           verdict = 'bear';
-          comment = `Kripto pozisyonu spekülatif — bankacılık sisteminin dışında kalan varlıklar kurumsal güveni zayıflatır. `;
-          comment += hasBist ? `BIST bankacılık hisseleri (${['garan','akbnk','ykbnk','halkb','vakbn','isctr'].filter(id => allAssets.find(a=>a.id===id)).map(id => allAssets.find(a=>a.id===id).tk).join(', ')}) daha güvenilir.` : 'Sisteme bağlı kalmak en iyisi.';
-        } else if (hasBond || hasBist) {
+          comment = `Sayın ${fullName}, portföyünüzde %${highRiskPct} spekülatif varlık var — bankacılık sisteminin dışında kalan varlıklar kurumsal güveni zayıflatır. `;
+          comment += `Konsantrasyon riski: en büyük pozisyon ${maxSingleAsset.tk} (%${maxSinglePct.toFixed(0)}). Varlıklar: ${tickers}. `;
+          comment += `Bir bankacı olarak bu portföyü teminat olarak kabul etmem zor olurdu. Düşük riskli varlık oranını %30'un üzerine çıkarın.`;
+        } else if (maxSinglePct < 40 && assetCount >= 3) {
           verdict = 'bull';
-          comment = `Kurumsal varlıklara dayalı portföy — güven esastır. `;
-          comment += hasBond ? 'Tahvil pozisyonu istikrar sağlıyor. ' : '';
-          comment += `${retStr(overallRet)} getiri, kurumsal yapıya güvenin karşılığı.`;
+          comment = `Sayın ${fullName}, portföyünüz dengeli bir yapıda. En büyük pozisyon ${maxSingleAsset.tk} (%${maxSinglePct.toFixed(0)}) — konsantrasyon riski kabul edilebilir. `;
+          comment += `${assetCount} varlık (${tickers}) ile ${retStr(overallRet)} getiri. Dağılım: ${catBreakdown}. `;
+          comment += `Kurumsal güven esastır — bu portföyü teminat olarak kabul ederdim.`;
         } else {
           verdict = 'neutral';
-          comment = `Bir insanın iki değeri vardır: karakteri ve kredisi. Portföyünüzde ${assetCount} varlık var, ${retStr(overallRet)} getiri — kurumsal yapıya daha fazla ağırlık verin.`;
+          comment = `Sayın ${fullName}, portföyünüzde ${assetCount} varlık var (${tickers}), toplam ${retStr(overallRet)} getiri. `;
+          comment += `Konsantrasyon: en büyük pozisyon ${maxSingleAsset.tk} (%${maxSinglePct.toFixed(0)}). Bir bankacı olarak riskin dağıtılmasını tavsiye ederim — tek varlık %30'u geçmemeli.`;
         }
         break;
+      }
 
-      case 'Irving Fisher':
+      case 'Irving Fisher': {
         if (tufeRet !== null) {
           const realRet = overallRet - tufeRet;
+          const ppChange = totalInit > 0 ? ((totalFinal / (totalInit * (1 + tufeRet/100))) - 1) * 100 : 0;
           if (realRet > 10) {
             verdict = 'bull';
-            comment = `Satın alma gücü korunmuş ve artmış! TÜFE ${retStr(tufeRet)} iken portföy ${retStr(overallRet)} — reel servet artışı ${retStr(realRet)}. Enflasyon hırsızı bu sefer başarısız olmuş.`;
+            comment = `Sayın ${fullName}, satın alma gücünüz korunmuş ve %${ppChange.toFixed(0)} artmış! ${period} döneminde TÜFE ${retStr(tufeRet)} enflasyon gösterirken portföyünüz ${retStr(overallRet)} getirmiş. `;
+            comment += `Reel servet artışı ${retStr(realRet)}. Varlıklarınız (${tickers}) enflasyon hırsızını yenmiş. `;
+            comment += `Nominal ₺${Math.round(totalFinal).toLocaleString('tr-TR')} değer, reel karşılığı pozitif.`;
           } else if (realRet > -10) {
             verdict = 'neutral';
-            comment = `Nominal ${retStr(overallRet)} ile TÜFE ${retStr(tufeRet)} neredeyse başa baş. Enflasyon sessiz bir hırsızdır — TL bazlı rakamlar aldatıcı olabilir.`;
+            comment = `Sayın ${fullName}, nominal ${retStr(overallRet)} ile TÜFE ${retStr(tufeRet)} neredeyse başa baş — reel getiri ${retStr(realRet)}. `;
+            comment += `₺${Math.round(totalInit).toLocaleString('tr-TR')} başlangıcınız ₺${Math.round(totalFinal).toLocaleString('tr-TR')} olmuş ama satın alma gücü neredeyse değişmemiş. `;
+            comment += `Enflasyon sessiz bir hırsızdır — ${tickers} varlıklarınız ancak korumayı sağlamış.`;
           } else {
             verdict = 'bear';
-            comment = `Enflasyon sessiz bir hırsızdır! Nominal ${retStr(overallRet)} getiri göz boyuyor ama TÜFE ${retStr(tufeRet)} ile reel kayıp ${retStr(realRet)}. Satın alma gücünüzü koruyun!`;
+            comment = `Sayın ${fullName}, enflasyon sessiz bir hırsızdır! Nominal ${retStr(overallRet)} getiri göz boyuyor ama TÜFE ${retStr(tufeRet)} ile reel kayıp ${retStr(realRet)}. `;
+            comment += `₺${Math.round(totalInit).toLocaleString('tr-TR')} → ₺${Math.round(totalFinal).toLocaleString('tr-TR')} olmuş ama satın alma gücünüz erimiş. Varlıklarınız (${tickers}) enflasyonu yenememiş!`;
           }
         } else {
           verdict = 'neutral';
-          comment = `${retStr(overallRet)} nominal getiri — ancak Fisher'ın en temel uyarısı: reel getiriyi hesaplamadan servet değerlendirmesi yapamazsınız.`;
+          comment = `Sayın ${fullName}, ${retStr(overallRet)} nominal getiri ancak reel değerlendirme için TÜFE karşılaştırması şart. Fisher'ın en temel uyarısı: reel getiriyi hesaplamadan servet değerlendirmesi yapılamaz.`;
         }
         break;
+      }
 
-      case 'André Kostolany':
-        if (hasCrypto || (topAsset && topAsset.ret > 200)) {
+      case 'André Kostolany': {
+        const volAssets = allAssets.filter(a => Math.abs(a.ret) > 200);
+        if (volAssets.length > 0 || hasCrypto) {
           verdict = 'neutral';
-          comment = `Borsada sabır her şeydir, ama aşırı getiri sürü psikolojisine dikkat gerektirir. `;
-          comment += topAsset ? `${topAsset.tk} (${retStr(topAsset.ret)}) muhteşem ama — herkes alırken siz ne yapıyordunuz? ` : '';
-          comment += 'Kontrarian düşünün: kalabalığın tersi genelde doğrudur.';
+          comment = `Sayın ${fullName}, borsada sabır her şeydir ama aşırı getiri sürü psikolojisine dikkat gerektirir! `;
+          comment += volAssets.length > 0 ? `Yüksek dalgalanmalı varlıklarınız: ${volAssets.map(a=>`${a.tk} (${retStr(a.ret)})`).join(', ')}. ` : '';
+          comment += `Portföy geneli ${retStr(overallRet)}. Herkes alırken siz ne yapıyordunuz? Kontrarian düşünün: kalabalığın tersi genelde doğrudur. `;
+          comment += `${period} döneminde Türkiye piyasasında panik anları en iyi fırsatlardı.`;
         } else if (overallRet > 50) {
           verdict = 'bull';
-          comment = `Borsa psikolojisi sabırlıyı ödüllendirmiş — ${retStr(overallRet)} getiri, panik anında pozisyon korumanın karşılığı. `;
+          comment = `Sayın ${fullName}, borsa psikolojisi sabırlıyı ödüllendirmiş — ${period} döneminde ${retStr(overallRet)} getiri, panik anında pozisyon korumanın karşılığı. `;
+          comment += `Varlıklarınız (${tickers}) disiplinli tutulmuş. `;
           comment += worstAsset && worstAsset.ret < 0 ? `${worstAsset.tk} kaybı (${retStr(worstAsset.ret)}) acı verici ama sabır getiri getirir.` : 'Disiplinli yaklaşımınız takdire şayan.';
         } else {
           verdict = 'bear';
-          comment = `${retStr(overallRet)} — borsa psikolojisi bu dönemde sizi yenmişe benziyor. Uyku ilacı alıp yıllarca uyumak bazen en iyi stratejidir. Sabırlı olun.`;
+          comment = `Sayın ${fullName}, ${retStr(overallRet)} getiri — ${period} döneminde piyasa psikolojisi sizi yenmişe benziyor. Varlıklarınız: ${tickers}. Bazen uyku ilacı alıp yıllarca uyumak en iyi stratejidir — sabırlı olun.`;
         }
         break;
+      }
     }
 
     return {
@@ -1252,10 +1328,26 @@ function generateCommentary(scResults) {
     };
   });
 }
-
 const SC_COLORS = ['#e74c3c','#2980b9','#27ae60','#f39c12','#8e44ad','#16a085','#2c3e50','#d35400'];
 
 let curUser=null, scenarios=[], calcCnt=0, myChart=null, curCat='all';
+
+// ── CURRENCY MAPPING ──
+function getCurrency(assetId) {
+  const asset = ASSETS.find(a => a.id === assetId);
+  const usdIds = ['gold-oz','silver-usd','plat','palad','brent','spy','qqq','bond-euro','copper'];
+  if (asset && asset.cat === 'us') return 'USD';
+  if (usdIds.includes(assetId)) return 'USD';
+  return 'TRY';
+}
+
+// ── DATA RANGE CHECK ──
+function getDataRange(assetId) {
+  const idx = PRICE_INDEX[assetId];
+  if (!idx) return null;
+  const years = Object.keys(idx).map(Number).sort((a,b)=>a-b);
+  return { min: years[0], max: years[years.length-1] };
+}
 
 // ── PRICE LOOKUP ──
 function getPrice(assetId, dateStr) {
@@ -1264,10 +1356,16 @@ function getPrice(assetId, dateStr) {
   const year = new Date(dateStr).getFullYear();
   const month = new Date(dateStr).getMonth(); // 0-11
   const years = Object.keys(idx).map(Number).sort((a,b)=>a-b);
-  if (year < years[0]) return null; // veri yok
+  // If before first available year, clamp to first year
+  if (year < years[0]) {
+    // For TEFAS funds return null (no data before 2015)
+    const asset = ASSETS.find(a => a.id === assetId);
+    if (asset && asset.cat === 'tefas') return null;
+    return idx[years[0]];
+  }
   const y0 = years.filter(y=>y<=year).pop();
   const y1 = years.filter(y=>y>year)[0];
-  if (!y1) return idx[y0];
+  if (!y1) return idx[y0]; // after last year, use last
   // Linear interpolation
   const frac = (year - y0 + month/12) / (y1 - y0);
   return idx[y0] + (idx[y1]-idx[y0]) * frac;
@@ -1277,7 +1375,29 @@ function calcReturn(assetId, startDate, endDate) {
   const p0 = getPrice(assetId, startDate);
   const p1 = getPrice(assetId, endDate);
   if (!p0 || !p1) return null;
-  return p1/p0;
+  let mult = p1 / p0;
+  // FX adjustment: USD-denominated assets need USD/TRY conversion
+  if (getCurrency(assetId) === 'USD') {
+    const fx0 = getPrice('usd', startDate);
+    const fx1 = getPrice('usd', endDate);
+    if (fx0 && fx1) {
+      mult *= (fx1 / fx0);
+    }
+  }
+  return mult;
+}
+
+// Check if an asset has data for a given period
+function checkDataAvailability(assetId, startDate, endDate) {
+  const range = getDataRange(assetId);
+  if (!range) return { available: false, reason: 'Veri bulunamadı' };
+  const startYear = new Date(startDate).getFullYear();
+  const endYear = new Date(endDate).getFullYear();
+  const asset = ASSETS.find(a => a.id === assetId);
+  if (asset && asset.cat === 'tefas' && startYear < range.min) {
+    return { available: false, reason: `Veri yok (${range.min} öncesi)` };
+  }
+  return { available: true, rangeMin: range.min, rangeMax: range.max };
 }
 
 // ── DATE PRESETS ──
@@ -1487,11 +1607,13 @@ function renderResults(scs) {
   const scResults = scs.map(sc => {
     let totInit=0, totFinal=0;
     const assets = sc.assets.map(a=>{
+      const avail = checkDataAvailability(a.id, sc.start, sc.end);
+      if (!avail.available) return {...a, fin:a.amount, ret:0, nodata:true, nodataReason:avail.reason, currency:getCurrency(a.id)};
       const mult = calcReturn(a.id, sc.start, sc.end);
-      if (!mult) return {...a, fin:a.amount, ret:0, nodata:true};
+      if (!mult) return {...a, fin:a.amount, ret:0, nodata:true, nodataReason:'Hesaplanamadı', currency:getCurrency(a.id)};
       const fin = a.amount * mult;
       totInit += a.amount; totFinal += fin;
-      return {...a, fin, ret:(mult-1)*100, nodata:false};
+      return {...a, fin, ret:(mult-1)*100, nodata:false, currency:getCurrency(a.id)};
     }).sort((a,b)=>b.ret-a.ret);
     grandInit += totInit; grandFinal += totFinal;
     return {sc, assets, totInit, totFinal, ret:(totFinal/totInit-1)*100};
@@ -1510,9 +1632,10 @@ function renderResults(scs) {
     <div class="sb-item"><div class="lbl">Toplam Kazanç</div><div class="val sm ${grandRet>=0?'pos':'neg'}">₺${Math.round(Math.abs(grandFinal-grandInit)).toLocaleString('tr-TR')}</div></div>
   </div>`;
 
-  // Calculation assumption note
+  // Calculation assumption note + FX note
   html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:6px 10px;font-size:10px;color:var(--muted);line-height:1.5;margin-top:.35rem" class="ani">
-    Hesaplama varsayımı: Başlangıç tarihindeki ortalama fiyattan alım, bitiş tarihindeki güncel fiyattan satım.
+    Hesaplama varsayımı: Başlangıç tarihindeki ortalama fiyattan alım, bitiş tarihindeki güncel fiyattan satım.<br>
+    <strong>Kur etkisi dahil edilmiştir.</strong> ABD varlıkları için USD/TRY kuru uygulanmıştır.
   </div>`;
 
   // Scenario cards
@@ -1531,7 +1654,7 @@ function renderResults(scs) {
       </div>
       <div class="scr-body">
         <div class="asset-chips">
-          ${sr.assets.map(a=>`<div class="achip"><div class="achip-dot" style="background:${a.color}"></div><span class="achip-ticker">${a.tk}</span><span class="achip-ret ${a.ret>=0?'pos':'neg'}">${a.nodata?'Veri yok':((a.ret>=0?'▲':'▼')+' %'+Math.abs(a.ret).toFixed(0))}</span></div>`).join('')}
+          ${sr.assets.map(a=>`<div class="achip"><div class="achip-dot" style="background:${a.color}"></div><span class="achip-ticker">${a.tk}</span>${a.currency==='USD'?'<span style="font-size:9px;color:var(--blue);font-weight:600">$</span>':''}<span class="achip-ret ${a.ret>=0?'pos':'neg'}">${a.nodata?(a.nodataReason||'Veri yok'):((a.ret>=0?'▲':'▼')+' %'+Math.abs(a.ret).toFixed(0))}</span></div>`).join('')}
         </div>
       </div>
     </div>`;
@@ -1542,7 +1665,7 @@ function renderResults(scs) {
   html += `<div class="chart-card ani d2">
     <h4>Karşılaştırma Tablosu — Varlık Bazlı Getiriler</h4>
     <div style="overflow-x:auto"><table class="comp-table">
-      <thead><tr><th>#</th><th>Senaryo</th><th>Varlık</th><th>Kaynak</th><th>Başlangıç</th><th>Bugünkü Değer</th><th>Getiri</th></tr></thead>
+      <thead><tr><th>#</th><th>Senaryo</th><th>Varlık</th><th>Kur</th><th>Kaynak</th><th>Başlangıç</th><th>Bugünkü Değer</th><th>Getiri</th></tr></thead>
       <tbody>`;
 
   // flatten & sort by return
@@ -1550,14 +1673,17 @@ function renderResults(scs) {
   scResults.forEach(sr => sr.assets.forEach(a => allAssets.push({...a, scLabel:sr.sc.label, scColor:sr.sc.color})));
   allAssets.sort((a,b)=>b.ret-a.ret);
   allAssets.forEach((a,i) => {
+    const kurLabel = a.currency === 'USD' ? 'USD→TRY' : 'TRY';
+    const kurStyle = a.currency === 'USD' ? 'color:var(--blue);font-weight:600' : 'color:var(--muted)';
     html += `<tr>
       <td><strong>${i+1}</strong></td>
       <td><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${a.scColor};display:inline-block"></span>${a.scLabel}</span></td>
       <td><span style="color:${a.color};font-weight:700">${a.tk}</span> <span style="color:var(--muted);font-size:11px">${a.name}</span></td>
+      <td style="font-size:10px;${kurStyle}">${kurLabel}</td>
       <td style="color:var(--muted);font-size:11px">${a.src}</td>
       <td>₺${Math.round(a.amount).toLocaleString('tr-TR')}</td>
       <td><strong>₺${Math.round(a.fin).toLocaleString('tr-TR')}</strong></td>
-      <td><span style="font-weight:700;color:${a.ret>=0?'var(--green)':'var(--red)'}">${a.nodata?'Veri yok':(a.ret>=0?'▲':'▼')+' %'+Math.abs(a.ret).toFixed(1)}</span></td>
+      <td><span style="font-weight:700;color:${a.ret>=0?'var(--green)':'var(--red)'}">${a.nodata?(a.nodataReason||'Veri yok'):(a.ret>=0?'▲':'▼')+' %'+Math.abs(a.ret).toFixed(1)}</span></td>
     </tr>`;
   });
 
@@ -1565,6 +1691,31 @@ function renderResults(scs) {
 
   // Chart.js
   html += `<div class="chart-card ani d3"><h4>Başlangıç vs. Bugünkü Değer</h4><canvas id="main-chart" height="${Math.max(allAssets.length*38+40,120)}"></canvas></div>`;
+
+  // ── INLINE ECONOMIST COMMENTARY ──
+  const commentaries = generateCommentary(scResults);
+  if (commentaries && commentaries.length) {
+    const userName = curUser ? curUser.name : 'Kullanıcı';
+    html += `<div class="chart-card ani d3" style="margin-top:.5rem">
+      <h4 style="margin-bottom:.75rem">Ekonomist Yorumları — ${userName} Portföyü</h4>
+      <div id="eco-inline-list" style="display:flex;flex-direction:column;gap:.5rem">`;
+    commentaries.forEach((e, idx) => {
+      const collapsed = idx >= 3;
+      html += `<div class="eco-card eco-inline-item" style="margin:0;${collapsed?'display:none':''}">
+        <div class="ec-hdr">
+          <div class="ec-av" style="background:${e.bg};color:${e.tc}">${e.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+          <div><div class="ec-name">${e.name}</div><div class="ec-title">${e.title}</div><div class="ec-era">${e.era}</div></div>
+        </div>
+        <div class="ec-q">${e.comment}</div>
+        <span class="vbadge ${e.vClass}">${e.verdict}</span>
+      </div>`;
+    });
+    html += `</div>`;
+    if (commentaries.length > 3) {
+      html += `<button class="btn btn-out btn-full btn-sm" style="margin-top:.5rem" id="eco-expand-btn" onclick="document.querySelectorAll('.eco-inline-item').forEach(el=>el.style.display='');this.style.display='none';">Diğer yorumları göster (${commentaries.length - 3} daha)</button>`;
+    }
+    html += `<div style="text-align:center;font-size:10px;color:var(--muted);margin-top:.5rem;padding:.35rem;background:var(--bg2);border-radius:var(--r)">Yapay zeka üretimi yorumlar. Gerçek görüşleri yansıtmaz. Yatırım tavsiyesi değildir.</div></div>`;
+  }
 
   // Premium upsell
   html += `<div class="prem-upsell ani d3">
@@ -1686,6 +1837,12 @@ function doLog(){
   const em=document.getElementById('lf-em').value.trim(),pw=document.getElementById('lf-pw').value;
   if(!em)return showErr('log-err','E-posta giriniz.');
   if(!pw)return showErr('log-err','Şifre giriniz.');
+  // Admin test mode
+  if(em==='admin@nekazandi.com' && pw==='admin123'){
+    loginUser({name:'Admin',email:em,plan:'admin'});
+    toast('Admin modu aktif!','ok');
+    return;
+  }
   const us=JSON.parse(localStorage.getItem('nk_users')||'{}');
   loginUser(us[em]||{name:em.split('@')[0],email:em,plan:'free'});
   toast('Tekrar hoş geldiniz! 👋','ok');
@@ -1705,6 +1862,25 @@ function loginUser(u){
   document.getElementById('nav-name').textContent=u.name.split(' ')[0];
   document.getElementById('nav-pub').classList.add('hid');
   document.getElementById('nav-app').classList.remove('hid');
+  // Admin badge & toolbar
+  let oldBadge=document.getElementById('admin-badge'); if(oldBadge) oldBadge.remove();
+  let oldBar=document.getElementById('admin-toolbar'); if(oldBar) oldBar.remove();
+  if(u.plan==='admin'){
+    const badge=document.createElement('span');
+    badge.id='admin-badge';
+    badge.textContent='Admin';
+    badge.style.cssText='background:#dc2626;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:middle';
+    document.getElementById('nav-name').after(badge);
+    const bar=document.createElement('div');
+    bar.id='admin-toolbar';
+    bar.style.cssText='position:fixed;top:52px;left:0;right:0;z-index:79;background:#dc2626;color:#fff;font-size:11px;font-weight:600;text-align:center;padding:4px 12px;letter-spacing:.3px';
+    bar.textContent='Admin modu aktif \u2014 T\u00FCm \u00F6zellikler a\u00E7\u0131k';
+    document.body.prepend(bar);
+    // Adjust app padding
+    document.getElementById('pg-app').style.paddingTop='80px';
+  } else {
+    document.getElementById('pg-app').style.paddingTop='52px';
+  }
   closeAuth(); goApp();
   updateProfUI(u);
   if (!scenarios.length) addScenario();
@@ -1713,6 +1889,10 @@ function logout(){
   localStorage.removeItem('nk_session'); curUser=null;
   document.getElementById('nav-pub').classList.remove('hid');
   document.getElementById('nav-app').classList.add('hid');
+  // Clean admin elements
+  let b=document.getElementById('admin-badge'); if(b) b.remove();
+  let t=document.getElementById('admin-toolbar'); if(t) t.remove();
+  document.getElementById('pg-app').style.paddingTop='52px';
   goLand(); toast('Güvenli çıkış yapıldı','ok');
 }
 function updateProfUI(u){
@@ -1726,6 +1906,13 @@ function updateProfUI(u){
   document.getElementById('pf-ln').value=pts.slice(1).join(' ')||'';
   document.getElementById('pf-em').value=u.email;
   document.getElementById('p-calc').textContent=calcCnt;
+  // Plan label
+  const planEl=document.getElementById('p-plan');
+  if(planEl){
+    if(u.plan==='admin'){planEl.textContent='Admin Plan';planEl.style.background='#dc2626';planEl.style.color='#fff';planEl.style.borderColor='#dc2626';}
+    else if(u.plan==='pro'){planEl.textContent='Premium Plan';planEl.style.background='var(--blue)';planEl.style.color='#fff';planEl.style.borderColor='var(--blue)';}
+    else{planEl.textContent='\u00dccretsiz Plan';planEl.style.background='';planEl.style.color='';planEl.style.borderColor='';}
+  }
 }
 function saveProfile(){
   if(!curUser)return;
