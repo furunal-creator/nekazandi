@@ -1344,9 +1344,18 @@ const SC_COLORS = ['#e74c3c','#2980b9','#27ae60','#f39c12','#8e44ad','#16a085','
 
 
 // ── FORMAT HELPERS ──
-function fmtMoney(v) {
-  const usdRate = (liveRates && liveRates['USD/TRY']) || 38.5;
+function fmtMoney(v, dateStr) {
   if (displayCurrency === 'USD') {
+    let usdRate;
+    if (dateStr) {
+      // Use the USD/TRY rate at the given date for accurate conversion
+      usdRate = getPrice('usd', dateStr);
+      if (usdRate) {
+        // PRICE_INDEX 'usd' is indexed to 2010=1.0, actual 2010 rate was ~1.50 TRY
+        usdRate = usdRate * 1.50; // Convert index to actual rate
+      }
+    }
+    if (!usdRate) usdRate = (liveRates && liveRates['USD/TRY']) || 38.5;
     const usdVal = v / usdRate;
     return '$' + Math.round(usdVal).toLocaleString('en-US');
   }
@@ -1526,7 +1535,7 @@ function renderScenarios() {
         </div>
         <div class="tot-row" style="margin-bottom:0">
           <span>Bu dönem toplam</span>
-          <strong>₺${Math.round(sc.assets.reduce((s,a)=>s+a.amount,0)).toLocaleString('tr-TR')}</strong>
+          <strong id="tot-${sc.id}">₺${Math.round(sc.assets.reduce((s,a)=>s+a.amount,0)).toLocaleString('tr-TR')}</strong>
         </div>
       </div>
     </div>
@@ -1603,9 +1612,17 @@ function removeAsset(scId, assetId) {
   renderPicker(scId); renderSelList(scId); updTot(scId);
 }
 function updAmt(scId, assetId, val) {
-  const sc = scenarios.find(x=>x.id===scId); if(!sc)return;
-  const a = sc.assets.find(a=>a.id===assetId); if(!a)return;
-  a.amount = parseFloat(val)||0; updTot(scId);
+  const sc = scenarios.find(x=>x.id===scId); if(!sc) return;
+  const a = sc.assets.find(x=>x.id===assetId); if(!a) return;
+  const num = parseFloat(val) || 0;
+  if (num < 0) { toast('Tutar pozitif olmalıdır.','err'); return; }
+  a.amount = num;
+  // Update total display immediately
+  const totEl = document.getElementById('tot-'+scId);
+  if (totEl) {
+    const total = sc.assets.reduce((s,x)=>s+(x.amount||0),0);
+    totEl.textContent = '₺'+Math.round(total).toLocaleString('tr-TR');
+  }
 }
 function updTot(scId) {
   const sc = scenarios.find(x=>x.id===scId); if(!sc)return;
@@ -1618,7 +1635,7 @@ function renderSelList(scId) {
   el.innerHTML = sc.assets.map(a=>`
     <div class="si">
       <div class="si-nm" style="color:${a.color}">● ${a.tk} — ${a.name}</div>
-      <input type="number" value="${a.amount}" min="0" style="font-size:12px;padding:6px 9px;border:1.5px solid var(--border);border-radius:5px;width:100%" onchange="updAmt(${scId},'${a.id}',this.value)">
+      <input type="number" value="${a.amount}" min="1" style="font-size:12px;padding:6px 9px;border:1.5px solid var(--border);border-radius:5px;width:100%" oninput="updAmt(${scId},'${a.id}',this.value)" onchange="updAmt(${scId},'${a.id}',this.value)">
       <button class="si-rm" onclick="removeAsset(${scId},'${a.id}')">✕</button>
     </div>`).join('') || '<div style="font-size:11px;color:var(--muted)">Henüz seçilmedi</div>';
 }
@@ -1750,16 +1767,16 @@ function renderResults(scs) {
   const df = d => new Date(d).toLocaleDateString('tr-TR',{year:'numeric',month:'short'});
 
   let html = `<div class="sum-bar ani">
-    <div class="sb-item"><div class="lbl">Toplam Başlangıç</div><div class="val">${fmtMoney(grandInit)}</div></div>
-    <div class="sb-item"><div class="lbl">Toplam Bugünkü Değer</div><div class="val">${fmtMoney(grandFinal)}</div></div>
+    <div class="sb-item"><div class="lbl">Toplam Başlangıç</div><div class="val">${fmtMoney(grandInit, scs[0]?.start)}</div></div>
+    <div class="sb-item"><div class="lbl">Toplam Bugünkü Değer</div><div class="val">${fmtMoney(grandFinal, scs[0]?.end)}</div></div>
     <div class="sb-item"><div class="lbl">Toplam Getiri</div><div class="val ${grandRet>=0?'pos':'neg'}">${grandRet>=0?'▲':'▼'} %${Math.abs(grandRet).toFixed(1)}</div></div>
     <div class="sb-item"><div class="lbl">Toplam Kazanç</div><div class="val sm ${grandRet>=0?'pos':'neg'}">${fmtMoney(Math.abs(grandFinal-grandInit))}</div></div>
   </div>`;
 
   // Calculation assumption note + FX note
   html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:6px 10px;font-size:10px;color:var(--muted);line-height:1.5;margin-top:.35rem" class="ani">
-    Hesaplama varsayımı: Başlangıç tarihindeki ortalama fiyattan alım, bitiş tarihindeki güncel fiyattan satım.<br>
-    <strong>Kur etkisi dahil edilmiştir. <span id='live-rate-note'></span></strong> ABD varlıkları için USD/TRY kuru uygulanmıştır.
+    Hesaplama varsayımı: Başlangıç tarihindeki kapanış fiyatından alım, bitiş tarihindeki güncel fiyattan satım. Yıllık veri noktaları arasında günlük interpolasyon uygulanmaktadır.<br>
+    <strong>ABD varlıkları için hem alış hem satış tarihindeki USD/TRY kuru uygulanmıştır. <span id='live-rate-note'></span></strong> ABD varlıkları için USD/TRY kuru uygulanmıştır.
   </div>`;
 
   // Scenario cards
@@ -1772,8 +1789,8 @@ function renderResults(scs) {
         <div class="scr-title">${sr.sc.label}</div>
         <div class="scr-period">${df(sr.sc.start)} → ${df(sr.sc.end)} (${yrs} yıl)</div>
         <div>
-          <div class="scr-total">${fmtMoney(sr.totFinal)}</div>
-          <div class="scr-gain ${sr.ret>=0?'pos':'neg'}">${sr.ret>=0?'▲':'▼'} %${Math.abs(sr.ret).toFixed(1)} &nbsp;|&nbsp; Başlangıç: ${fmtMoney(sr.totInit)}</div>
+          <div class="scr-total">${fmtMoney(sr.totFinal, sr.sc.end)}</div>
+          <div class="scr-gain ${sr.ret>=0?'pos':'neg'}">${sr.ret>=0?'▲':'▼'} %${Math.abs(sr.ret).toFixed(1)} &nbsp;|&nbsp; Başlangıç: ${fmtMoney(sr.totInit, sr.sc.start)}</div>
         </div>
       </div>
       <div class="scr-body">
@@ -1805,8 +1822,8 @@ function renderResults(scs) {
       <td><span style="color:${a.color};font-weight:700">${a.tk}</span> <span style="color:var(--muted);font-size:11px">${a.name}</span></td>
       <td style="font-size:10px;${kurStyle}">${kurLabel}</td>
       <td style="color:var(--muted);font-size:11px">${a.src}</td>
-      <td>${fmtMoney(a.amount)}</td>
-      <td><strong>${fmtMoney(a.fin)}</strong></td>
+      <td>${fmtMoney(a.amount, sr?.sc?.start)}</td>
+      <td><strong>${fmtMoney(a.fin, sr?.sc?.end)}</strong></td>
       <td><span style="font-weight:700;color:${a.ret>=0?'var(--green)':'var(--red)'}">${a.nodata?(a.nodataReason||'Veri yok'):(a.ret>=0?'▲':'▼')+' %'+Math.abs(a.ret).toFixed(1)}</span></td>
       <td style="font-size:10px">${a.currency==='USD'?'<span style="color:var(--blue)">Kur dahil</span>':'<span style="color:var(--muted)">—</span>'}</td>
     </tr>`;
@@ -1905,6 +1922,16 @@ function renderEco() {
   }
 
   const commentaries = generateCommentary(lastResults);
+  // Edge case: skip if no meaningful data
+  const allReturns = lastResults.flatMap(r=>r.assets.map(a=>a.ret));
+  const avgRet = allReturns.length ? allReturns.reduce((s,r)=>s+r,0)/allReturns.length : 0;
+  const periodYears = lastResults.length ? ((new Date(lastResults[0].sc.end)-new Date(lastResults[0].sc.start))/31557600000) : 0;
+  if (periodYears < 0.08 || (Math.abs(avgRet) < 0.1 && allReturns.every(r=>Math.abs(r)<0.5))) {
+    // Too short period or all zero returns - skip commentary
+    ecoHtml = '<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:12px">Yeterli veri yok — dönem çok kısa veya getiri hesaplanamadı.</div>';
+    // Skip generating individual cards
+    commentaries.length = 0;
+  }
   if (!commentaries) return;
 
   g.innerHTML = commentaries.map(e=>`<div class="eco-card">
