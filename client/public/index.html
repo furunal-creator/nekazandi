@@ -1811,7 +1811,7 @@ function renderResults(scs) {
 
   // flatten & sort by return
   const allAssets = [];
-  scResults.forEach(sr => sr.assets.forEach(a => allAssets.push({...a, scLabel:sr.sc.label, scColor:sr.sc.color})));
+  scResults.forEach(sr => sr.assets.forEach(a => allAssets.push({...a, scLabel:sr.sc.label, scColor:sr.sc.color, scStart:sr.sc.start, scEnd:sr.sc.end})));
   allAssets.sort((a,b)=>b.ret-a.ret);
   allAssets.forEach((a,i) => {
     const kurLabel = a.currency === 'USD' ? 'USD→TRY' : 'TRY';
@@ -1822,8 +1822,8 @@ function renderResults(scs) {
       <td><span style="color:${a.color};font-weight:700">${a.tk}</span> <span style="color:var(--muted);font-size:11px">${a.name}</span></td>
       <td style="font-size:10px;${kurStyle}">${kurLabel}</td>
       <td style="color:var(--muted);font-size:11px">${a.src}</td>
-      <td>${fmtMoney(a.amount, sr?.sc?.start)}</td>
-      <td><strong>${fmtMoney(a.fin, sr?.sc?.end)}</strong></td>
+      <td>${fmtMoney(a.amount, a.scStart)}</td>
+      <td><strong>${fmtMoney(a.fin, a.scEnd)}</strong></td>
       <td><span style="font-weight:700;color:${a.ret>=0?'var(--green)':'var(--red)'}">${a.nodata?(a.nodataReason||'Veri yok'):(a.ret>=0?'▲':'▼')+' %'+Math.abs(a.ret).toFixed(1)}</span></td>
       <td style="font-size:10px">${a.currency==='USD'?'<span style="color:var(--blue)">Kur dahil</span>':'<span style="color:var(--muted)">—</span>'}</td>
     </tr>`;
